@@ -8,7 +8,7 @@ namespace eita {
 	/// <summary>
 	/// estrutura da camada de conexões da rede neural.
 	/// </summary>
-	class Conexoes {
+	class Conexões {
 		/// <summary>número de linhas (neurônios na camada atual + bias) na matriz de pesos</summary>
 		public int qtdAtual { get; private set; }
 		/// <summary>número de colunas (neurônios na próxima camada) na matriz de pesos</summary>
@@ -20,17 +20,17 @@ namespace eita {
 		/// <param name="camada0">número de neurônios na camada atual (sem o bias)</param>
 		/// <param name="camada1">número de neurônios na próxima camada (sem o bias)</param>
 		/// <param name="aleatorizar">se verdadeiro, gera valores aleatórios de -1 a 1 para os pesos</param>
-		public Conexoes(int camada0,int camada1,bool aleatorizar = true) {
+		public Conexões(int camada0,int camada1,bool aleatorizar = true) {
 			qtdAtual = camada0+1;
 			qtdProx = camada1;
 			pesos = new double[qtdAtual,qtdProx];
-			if (aleatorizar) GerarPesosAleatorios();
+			if (aleatorizar) GerarPesosAleatórios();
 		}
 
 		/// <summary>
 		/// gera valores aleatórios de -1 a 1 para os pesos.
 		/// </summary>
-		public void GerarPesosAleatorios() {
+		public void GerarPesosAleatórios() {
 			var geradorRandom = new Random((int)DateTime.UtcNow.Ticks);
 			for (int atual = 0; atual < qtdAtual; atual++) {
 				for (int prox = 0; prox < qtdProx; prox++) {

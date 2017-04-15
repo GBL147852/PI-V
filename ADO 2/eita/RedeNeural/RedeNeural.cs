@@ -12,12 +12,12 @@ namespace eita {
 		/// <summary>camada de entrada</summary>
 		public double[] entrada;
 		/// <summary>camada de saída</summary>
-		public double[] saida;
+		public double[] saída;
 
 		/// <summary>lista de todas as camadas</summary>
-		public double[][] neuronios;
+		public double[][] neurônios;
 		/// <summary>lista de conexões por camada</summary>
-		public Conexoes[] conexoes;
+		public Conexões[] conexões;
 
 		/// <summary>parâmetro do sigmoide</summary>
 		public double sigmoideA = 1;
@@ -36,15 +36,15 @@ namespace eita {
 		/// <param name="camadasOcultas">número de camadas ocultas</param>
 		/// <param name="neuroniosOcultos">número de neurônios por camada oculta</param>
 		public RedeNeural(int entradas,int saidas,int camadasOcultas,int neuroniosOcultos) {
-			neuronios = new double[camadasOcultas+2][];
-			conexoes = new Conexoes[camadasOcultas+1];
-			entrada = neuronios[0] = new double[entradas];
-			saida = neuronios[camadasOcultas+1] = new double[saidas];
+			neurônios = new double[camadasOcultas+2][];
+			conexões = new Conexões[camadasOcultas+1];
+			entrada = neurônios[0] = new double[entradas];
+			saída = neurônios[camadasOcultas+1] = new double[saidas];
 			for (int a = 1; a < camadasOcultas+1; a++) {
-				neuronios[a] = new double[neuroniosOcultos];
+				neurônios[a] = new double[neuroniosOcultos];
 			}
 			for (int a = 0; a < camadasOcultas+1; a++) {
-				conexoes[a] = new Conexoes(neuronios[a].Length,neuronios[a+1].Length,true);
+				conexões[a] = new Conexões(neurônios[a].Length,neurônios[a+1].Length,true);
 			}
 		}
 
@@ -65,12 +65,12 @@ namespace eita {
 		/// </summary>
 		public void Debug() {
 			Console.WriteLine("--");
-			for (int a = 0; a < conexoes.Length; a++) {
+			for (int a = 0; a < conexões.Length; a++) {
 				Console.WriteLine("[conexões camadas #{0} -> #{1}]",a,a+1);
-				for (int prox = 0; prox < conexoes[a].qtdProx; prox++) {
+				for (int prox = 0; prox < conexões[a].qtdProx; prox++) {
 					Console.WriteLine("neurônio {0}:");
-					for (int atual = 0; atual < conexoes[a].qtdAtual; atual++) {
-						Console.WriteLine("    {0}",conexoes[a].pesos[atual,prox]);
+					for (int atual = 0; atual < conexões[a].qtdAtual; atual++) {
+						Console.WriteLine("    {0}",conexões[a].pesos[atual,prox]);
 					}
 				}
 			}
@@ -82,19 +82,19 @@ namespace eita {
 		/// </summary>
 		public void PassoForward() {
 			//para cada par de camadas adjacentes...
-			for (int con = 0; con < conexoes.Length; con++) {
-				var neuAtual = neuronios[con];
-				var neuProx = neuronios[con+1];
-				var conexao = conexoes[con];
+			for (int con = 0; con < conexões.Length; con++) {
+				var neuAtual = neurônios[con];
+				var neuProx = neurônios[con+1];
+				var conexão = conexões[con];
 				//e para cada neurônio da camada a ser atualizada...
 				for (int prox = 0; prox < neuProx.Length; prox++) {
 					double v = 0;
 					//soma os neurônios atuais multiplicados pelo peso na matriz de conexão
 					for (int atual = 0; atual < neuAtual.Length; atual++) {
-						v += conexao.pesos[atual,prox]*neuAtual[atual];
+						v += conexão.pesos[atual,prox]*neuAtual[atual];
 					}
 					//soma o peso do bias
-					v += conexao.pesos[neuAtual.Length,prox];
+					v += conexão.pesos[neuAtual.Length,prox];
 					//atribui o valor novo ao próximo neurônio
 					neuProx[prox] = Sigmoide(v);
 				}

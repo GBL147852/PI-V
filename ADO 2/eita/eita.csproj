@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RedeNeural\Conexoes.cs" />
+    <Compile Include="RedeNeural\Conexões.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedeNeural\RedeNeural.cs" />

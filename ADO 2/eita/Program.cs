@@ -20,7 +20,7 @@ namespace eita {
 				}
 				if (i < rede.entrada.Length) continue;
 				rede.PassoForward();
-				Console.WriteLine("[saída] {0}",string.Join(", ",rede.saida));
+				Console.WriteLine("[saída] {0}",string.Join(", ",rede.saída));
 			}
 		}
 	}
