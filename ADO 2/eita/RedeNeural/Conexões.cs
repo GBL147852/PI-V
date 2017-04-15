@@ -31,10 +31,10 @@ namespace eita {
 		/// gera valores aleatórios de -1 a 1 para os pesos.
 		/// </summary>
 		public void GerarPesosAleatórios() {
-			var geradorRandom = new Random((int)DateTime.UtcNow.Ticks);
+			var random = new Random((int)DateTime.UtcNow.Ticks);
 			for (int atual = 0; atual < qtdAtual; atual++) {
 				for (int prox = 0; prox < qtdProx; prox++) {
-					pesos[atual,prox] = geradorRandom.NextDouble()*2-1;
+					pesos[atual,prox] = random.NextDouble()*2-1;
 				}
 			}
 		}
