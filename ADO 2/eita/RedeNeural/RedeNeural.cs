@@ -124,11 +124,7 @@ namespace eita {
 				}
 			}
 		}
-
-        /// <summary>
-		/// realiza o passo backward, utilizando resultados do passo forward e atualizando os pesos até a primeira.
-		/// </summary>
-		public void PassoBackward(double[] Erros)
+        public void PassoBackward(double[] Erros)
         {
             // --- ETAPA BACKWARD CONSIDERANDO A ÚLTIMA CAMADA DE NEURÔNIOS OCULTA  ---
             // --- E A CAMADA DE SAÍDA, ONDE UTILIZAMOS OS ERROS DA CAMADA DE SAÍDA --- 
@@ -145,7 +141,7 @@ namespace eita {
                 {
                     //pegamos as conexões e atualizamos os pesos...
                     conexão.pesos[ant, atual] = taxaAprendizado * Erros[atual] * neuAtual[atual] * neuAnt[ant];
-                    
+
                 }
             }
 
@@ -158,14 +154,14 @@ namespace eita {
                 neuAtual = neurônios[con];
                 neuAnt = neurônios[con - 1];
                 conexão = conexões[con - 1];
-                //e para cada neurônio da camada anterior à de saída ser atualizada...
+                //e para cada neurônio da camada anterior...
                 for (int ant = 0; ant < neuAnt.Length; ant++)
                 {
-                    //conectado a cada neurônio da camada de saída em si...
+                    //conectado a cada neurônio da camada atual...
                     for (int atual = 0; atual < neuAtual.Length; atual++)
                     {
                         //pegamos as conexões e atualizamos os pesos...
-                        conexão.pesos[ant, atual] = conexão.pesos[ant,atual] * neuAtual[atual] * neuAnt[ant];
+                        conexão.pesos[ant, atual] = SigmoideDeriv(neuAtual[atual]) * conexão.pesos[ant, atual] * neuAtual[atual] * neuAnt[ant];
 
                     }
                 }
@@ -177,8 +173,19 @@ namespace eita {
         /// </summary>
         /// <param name="x">valor x</param>
         /// <returns>resultado da sigmoide</returns>
-        public double Sigmoide(double x) {
-			return 1/(1+Math.Exp(-x*sigmoideA));
-		}
+        public double Sigmoide(double x)
+        {
+            return 1 / (1 + Math.Exp(-x * sigmoideA));
+        }
+
+        /// <summary>
+        /// função sigmoide derivada.
+        /// </summary>
+        /// <param name="x">valor x</param>
+        /// <returns>resultado da derivada da sigmoide</returns>
+        public double SigmoideDeriv(double x)
+        {
+            return (Math.Exp(-x) / Math.Pow((1 + Math.Exp(-x * sigmoideA)), 2));
+        }
 	}
 }
