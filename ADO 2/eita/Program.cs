@@ -72,7 +72,7 @@ namespace eita {
                 case 3:
                     return new DataSet("wine-NORMALIZED/Wine - NORMALIZED Table.csv", "Alcohol", false);
                 case 4:
-                    return new DataSet("breast-cancer-NORMALIZED/Breast Cancer Wisconsin - NORMALIZED Table.csv", "Class", false);
+                    return new DataSet("breast-cancer-NORMALIZED/Breast Cancer Winsconsin - NORMALIZED Table.csv", "Class", false);
                 case 5:
                     return new DataSet("winequality-red-NORMALIZED/Wine Quality - Red - NORMALIZED Table.csv", "Alcohol", false);
                 case 6:
