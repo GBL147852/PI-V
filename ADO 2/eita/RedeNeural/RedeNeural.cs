@@ -130,10 +130,10 @@ namespace eita {
         /// <summary>
 		/// realiza o passo backward, utilizando resultados do passo foward e atualizando os pesos até a primeira.
 		/// </summary>
-		public void PassoBackward(double ErroQuad)
+		public void PassoBackward(double[] Erros)
         {
-            // --- ETAPA BACKWARD CONSIDERANDO A ÚLTIMA CAMADA DE NEURÔNIOS ---
-            // --- OCULTA E A CAMADA DE SAÍDA, ONDE UTILIZAMOS O ERRO QUAD  --- 
+            // --- ETAPA BACKWARD CONSIDERANDO A ÚLTIMA CAMADA DE NEURÔNIOS OCULTA  ---
+            // --- E A CAMADA DE SAÍDA, ONDE UTILIZAMOS OS ERROS DA CAMADA DE SAÍDA --- 
             //para o primeiro par de camadas adjacentes...
             int con = conexões.Length;
             var neuAtual = neurônios[con];
@@ -147,9 +147,33 @@ namespace eita {
                 {
                     //pegamos as conexões e atualizamos os pesos...
                     Console.WriteLine("Antes [{0},{0}]: {0}", ant, atual, conexão.pesos[ant, atual]);
-                    conexão.pesos[ant, atual] = taxaAprendizado * ErroQuad * neuAtual[atual] * neuAnt[ant];
+                    conexão.pesos[ant, atual] = taxaAprendizado * Erros[atual] * neuAtual[atual] * neuAnt[ant];
                     Console.WriteLine("Depois [{0},{0}]: {0}", ant, atual, conexão.pesos[ant,atual]);
                     
+                }
+            }
+
+            // --- ETAPA BACKWARD CONSIDERANDO AS OUTRAS CAMADAS DE NEURÔNIOS      ---
+            // --- ATÉ CHEGAR À CAMADA DE ENTRADA, UTILIZANDO A MATRIZ DE CONEXÕES ---
+
+            //diminuimos esta dimensão, pois precisamos das demais conexões para chegar ao input layer
+            for (; con >= 0; con--)
+            {
+                neuAtual = neurônios[con];
+                neuAnt = neurônios[con - 1];
+                conexão = conexões[con - 1];
+                //e para cada neurônio da camada anterior à de saída ser atualizada...
+                for (int ant = 0; ant < neuAnt.Length; ant++)
+                {
+                    //conectado a cada neurônio da camada de saída em si...
+                    for (int atual = 0; atual < neuAtual.Length; atual++)
+                    {
+                        //pegamos as conexões e atualizamos os pesos...
+                        Console.WriteLine("Antes [{0},{0},{0}]: {0}", ant, atual, conexão.pesos[ant, atual]);
+                        conexão.pesos[ant, atual] = conexão.pesos[ant,atual] * neuAtual[atual] * neuAnt[ant];
+                        Console.WriteLine("Depois [{0},{0},{0}]: {0}", ant, atual, conexão.pesos[ant, atual]);
+
+                    }
                 }
             }
         }

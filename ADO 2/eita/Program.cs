@@ -32,6 +32,8 @@ namespace eita {
 			foreach (var entry in data.entries) {
 				rede.SetarEntrada(entry.atributos);
 				rede.PassoForward();
+
+                //ATUALIZAR ESTE VALOR PARA UM VETOR DOS ERROS, TOMANDO OS NEURÔNIOS DE SAÍDA
                 rede.PassoBackward(rede.ObterErroQuadrático(entry.resultados));
 
 				e += rede.ObterErroQuadrático(entry.resultados);
