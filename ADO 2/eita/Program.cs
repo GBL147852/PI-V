@@ -58,7 +58,7 @@ namespace eita {
                     return new DataSet("iris-NORMALIZED/Iris - NORMALIZED Table.csv", " Class", true, "iris-NORMALIZED/Iris - Class Label.csv");
                     break;
                 case 2:
-                    return null;
+                    return new DataSet("adult-NORMALIZED/Adult - NORMALIZED Table.csv", "Class", false);
                     break;
                 case 3:
                     return new DataSet("wine-NORMALIZED/Wine - NORMALIZED Table.csv", "Alcohol", false);
