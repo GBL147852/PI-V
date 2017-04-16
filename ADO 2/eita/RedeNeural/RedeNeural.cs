@@ -78,6 +78,30 @@ namespace eita {
 		}
 
 		/// <summary>
+		/// seta valores nos neurônios de entrada.
+		/// </summary>
+		/// <param name="valores">valores de entrada</param>
+		public void SetarEntrada(double[] valores) {
+			for (int a = 0; a < entrada.Length && a < valores.Length; a++) {
+				entrada[a] = valores[a];
+			}
+		}
+
+		/// <summary>
+		/// obtém o erro quadrático a partir dos neurônios de saída.
+		/// </summary>
+		/// <param name="valores">valores esperados de saída</param>
+		/// <returns>erro quadrático</returns>
+		public double ObterErroQuadrático(double[] valores) {
+			double eq = 0;
+			for (int a = 0; a < saída.Length && a < valores.Length; a++) {
+				double e = valores[a]-saída[a];
+				eq += e*e;
+			}
+			return eq/2;
+		}
+
+		/// <summary>
 		/// realiza o passo forward, utilizando valores da primeira camada e atualizando até a última.
 		/// </summary>
 		public void PassoForward() {

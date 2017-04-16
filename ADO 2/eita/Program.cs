@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace eita {
 	class Program {
 		static void Main(string[] args) {
+			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("en-UK");
 			var data = new DataSet(
-				"wdbc-NORMALIZED/WDBC - NORMALIZED Table.csv",
-				"diagnosis",true,
-				"wdbc-NORMALIZED/WDBC - Class Label.csv"
+				"winequality-white-NORMALIZED/Wine Quality - White - NORMALIZED Table.csv",
+				"quality",false
 			);
 			data.Embaralhar();
 			Console.WriteLine("{0} entradas!",data.entries.Count);
@@ -18,41 +18,33 @@ namespace eita {
 			foreach (var atributo in data.atributos) {
 				Console.WriteLine("- {0}",atributo);
 			}
-			if (data.usandoClasses) {
-				Console.WriteLine("classes ({0}):",data.classes.Count);
-				foreach (var classe in data.classes) {
-					Console.WriteLine("- {0} ({1})",classe.Key,classe.Value);
-				}
+			Console.WriteLine("resultados ({0}):",data.resultados.Length);
+			foreach (var resultado in data.resultados) {
+				Console.WriteLine("- {0}",resultado);
 			}
-			var rede = new RedeNeural(data.atributos.Length,data.usandoClasses ? data.classes.Count : 1,3);
+			var rede = new RedeNeural(data.atributos.Length,data.resultados.Length,3);
 			int i = 0;
-			int padding;
-			if (data.usandoClasses) {
-				padding = data.classes.Values.Aggregate("",(x,y) => (x.Length > y.Length) ? x : y).Length;
-			} else {
-				padding = 0;
-			}
+			int padding = data.resultados.Aggregate("",(x,y) => (x.Length > y.Length) ? x : y).Length;
 			while (true) {
 				Console.ReadLine();
 				if (i >= data.entries.Count) continue;
+				var entry = data.entries[i++];
 				for (int a = 0; a < rede.entrada.Length; a++) {
-					rede.entrada[a] = data.entries[i].atributos[a];
+					rede.entrada[a] = entry.atributos[a];
 				}
 				rede.PassoForward();
-				if (data.usandoClasses) {
-					int b = 0;
-					foreach (var classe in data.classes) {
-						Console.WriteLine("{0} / D: {1} / Y: {2}",
-							classe.Value.PadRight(padding),
-							(classe.Key == data.entries[i].classeEsperada) ? 1 : 0,
-							rede.saída[b++]
-						);
-					}
-				} else {
-					Console.Write("D: {0} / Y: {1}",data.entries[i].decimalEsperado,rede.saída[0]);
+				for (int a = 0; a < data.resultados.Length; a++) {
+					Console.WriteLine("{0} / D: {1} / Y: {2}",
+						data.resultados[a].PadRight(padding),
+						entry.resultados[a],
+						rede.saída[a]
+					);
 				}
-				i++;
 			}
+		}
+
+		static void BackPropagation() {
+			//
 		}
 	}
 }
