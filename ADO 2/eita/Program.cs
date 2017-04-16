@@ -36,7 +36,7 @@ namespace eita {
                 //ATUALIZAR ESTE VALOR PARA UM VETOR DOS ERROS, TOMANDO OS NEURÔNIOS DE SAÍDA
                 rede.PassoBackward(rede.ObterErroQuadrático(entry.resultados));
 
-				e += rede.ObterErroQuadrático(entry.resultados);
+				e += rede.ObterErroQuadráticoSomatória(entry.resultados);
 
 			}
 			e /= data.entries.Count;

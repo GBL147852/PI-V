@@ -94,13 +94,22 @@ namespace eita {
 		/// </summary>
 		/// <param name="valores">valores esperados de saída</param>
 		/// <returns>erro quadrático</returns>
-		public double ObterErroQuadrático(double[] valores) {
+		public double ObterErroQuadráticoSomatória(double[] valores) {
 			double eq = 0;
 			for (int a = 0; a < saída.Length && a < valores.Length; a++) {
 				double e = valores[a]-saída[a];
 				eq += e*e;
 			}
 			return eq/2;
+		}
+
+		public double[] ObterErroQuadrático(double[] valores) {
+			var eq = new double[Math.Min(saída.Length,valores.Length)];
+			for (int a = 0; a < eq.Length; a++) {
+				double e = valores[a]-saída[a];
+				eq[a] = e*e/2;
+			}
+			return eq;
 		}
 
 		/// <summary>
