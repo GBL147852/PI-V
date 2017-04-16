@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace eita {
 	class Program {
 		static void Main(string[] args) {
-            
+
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("en-UK");
             var data = iniciarDataSet();
 			data.Embaralhar();
@@ -71,7 +71,7 @@ namespace eita {
                 case 1:
                     return new DataSet("iris-NORMALIZED/Iris - NORMALIZED Table.csv", " Class", true, "iris-NORMALIZED/Iris - Class Label.csv");
                 case 2:
-                    return null;
+                    return new DataSet("adult-NORMALIZED/Adult - NORMALIZED Table.csv", "Class", false);
                 case 3:
                     return new DataSet("wine-NORMALIZED/Wine - NORMALIZED Table.csv", "Alcohol", false);
                 case 4:
@@ -85,7 +85,7 @@ namespace eita {
                 default:
                     return null;
             }
-            
+
         }
 	}
 }
