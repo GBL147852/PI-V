@@ -26,7 +26,6 @@ namespace eita {
 		}
 
 		static void BackPropagation(RedeNeural rede,DataSet data) {
-			double erroAnterior = 1;
 			int i = 0;
 			while (true) {
 				var erroNeuronio = new double[rede.saída.Length];
@@ -37,14 +36,12 @@ namespace eita {
 				}
 				double erroTotal = 0;
 				for (int a = 0; a < erroNeuronio.Length; a++) {
-					erroNeuronio[a] /= erroNeuronio.Length;
+					erroNeuronio[a] /= data.entries.Count;
 					erroTotal += erroNeuronio[a];
 				}
-				var razão = erroTotal/erroAnterior;
-				if (i > 0 && razão < rede.limiar) break;
-				Console.WriteLine("iteração #{0}: erro de {1} ({2}/{3})",i,razão,erroTotal,erroAnterior);
+				if (i > 0 && erroTotal < rede.limiar) break;
+				Console.WriteLine("iteração #{0}: erro de {1}",i,erroTotal);
 				rede.PassoBackward(erroNeuronio);
-				erroAnterior = erroTotal;
 				i++;
 				Console.ReadLine();
 			}
