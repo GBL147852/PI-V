@@ -32,7 +32,10 @@ namespace eita {
 			foreach (var entry in data.entries) {
 				rede.SetarEntrada(entry.atributos);
 				rede.PassoForward();
+                rede.PassoBackward(rede.ObterErroQuadrático(entry.resultados));
+
 				e += rede.ObterErroQuadrático(entry.resultados);
+
 			}
 			e /= data.entries.Count;
 			Console.WriteLine("erro: {0}",e);

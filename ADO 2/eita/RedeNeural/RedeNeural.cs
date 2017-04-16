@@ -127,12 +127,39 @@ namespace eita {
 			}
 		}
 
-		/// <summary>
-		/// função sigmoide.
+        /// <summary>
+		/// realiza o passo backward, utilizando resultados do passo foward e atualizando os pesos até a primeira.
 		/// </summary>
-		/// <param name="x">valor x</param>
-		/// <returns>resultado da sigmoide</returns>
-		public double Sigmoide(double x) {
+		public void PassoBackward(double ErroQuad)
+        {
+            // --- ETAPA BACKWARD CONSIDERANDO A ÚLTIMA CAMADA DE NEURÔNIOS ---
+            // --- OCULTA E A CAMADA DE SAÍDA, ONDE UTILIZAMOS O ERRO QUAD  --- 
+            //para o primeiro par de camadas adjacentes...
+            int con = conexões.Length;
+            var neuAtual = neurônios[con];
+            var neuAnt = neurônios[con - 1];
+            var conexão = conexões[con - 1];
+            //e para cada neurônio da camada anterior à de saída ser atualizada...
+            for (int ant = 0; ant < neuAnt.Length; ant++)
+            {
+                //conectado a cada neurônio da camada de saída em si...
+                for (int atual = 0; atual < neuAtual.Length; atual++)
+                {
+                    //pegamos as conexões e atualizamos os pesos...
+                    Console.WriteLine("Antes [{0},{0}]: {0}", ant, atual, conexão.pesos[ant, atual]);
+                    conexão.pesos[ant, atual] = taxaAprendizado * ErroQuad * neuAtual[atual] * neuAnt[ant];
+                    Console.WriteLine("Depois [{0},{0}]: {0}", ant, atual, conexão.pesos[ant,atual]);
+                    
+                }
+            }
+        }
+
+        /// <summary>
+        /// função sigmoide.
+        /// </summary>
+        /// <param name="x">valor x</param>
+        /// <returns>resultado da sigmoide</returns>
+        public double Sigmoide(double x) {
 			return 1/(1+Math.Exp(-x*sigmoideA));
 		}
 	}
