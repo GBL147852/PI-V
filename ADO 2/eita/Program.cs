@@ -23,28 +23,19 @@ namespace eita {
 				Console.WriteLine("- {0}",resultado);
 			}
 			var rede = new RedeNeural(data.atributos.Length,data.resultados.Length,3);
-			int i = 0;
-			int padding = data.resultados.Aggregate("",(x,y) => (x.Length > y.Length) ? x : y).Length;
-			while (true) {
-				Console.ReadLine();
-				if (i >= data.entries.Count) continue;
-				var entry = data.entries[i++];
-				for (int a = 0; a < rede.entrada.Length; a++) {
-					rede.entrada[a] = entry.atributos[a];
-				}
-				rede.PassoForward();
-				for (int a = 0; a < data.resultados.Length; a++) {
-					Console.WriteLine("{0} / D: {1} / Y: {2}",
-						data.resultados[a].PadRight(padding),
-						entry.resultados[a],
-						rede.saída[a]
-					);
-				}
-			}
+			BackPropagation(rede,data);
+			Console.ReadLine();
 		}
 
-		static void BackPropagation() {
-			//
+		static void BackPropagation(RedeNeural rede,DataSet data) {
+			double e = 0;
+			foreach (var entry in data.entries) {
+				rede.SetarEntrada(entry.atributos);
+				rede.PassoForward();
+				e += rede.ObterErroQuadrático(entry.resultados);
+			}
+			e /= data.entries.Count;
+			Console.WriteLine("erro: {0}",e);
 		}
 	}
 }

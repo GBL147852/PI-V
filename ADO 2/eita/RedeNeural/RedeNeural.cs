@@ -23,6 +23,8 @@ namespace eita {
 		public double sigmoideA = 1;
 		/// <summary>limiar definindo o critério de parada</summary>
 		public double limiar = .01;
+		/// <summary>alpha que dita a velocidade de aprendizado</summary>
+		public double momentum = 0;
 		/// <summary>taxa de aprendizado para atualização dos pesos</summary>
 		public double taxaAprendizado = .01;
 

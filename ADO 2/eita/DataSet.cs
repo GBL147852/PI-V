@@ -149,7 +149,11 @@ namespace eita {
 		/// </summary>
 		public void Embaralhar() {
 			var random = new Random((int)DateTime.UtcNow.Ticks);
-			entries.Sort((x,y) => (random.NextDouble() > .5) ? 1 : -1);
+			for (int count = entries.Count; count > 0; count--) {
+				var i = random.Next()%count;
+				entries.Add(entries[i]);
+				entries.RemoveAt(i);
+			}
 		}
 	}
 
