@@ -9,7 +9,7 @@ namespace eita {
 		static void Main(string[] args) {
             
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("en-UK");
-            var data = iniciarDataSet() ;
+            var data = iniciarDataSet();
 			data.Embaralhar();
 			Console.WriteLine("{0} entradas!",data.entries.Count);
 			Console.WriteLine("atributos ({0}):",data.atributos.Length);
@@ -26,15 +26,29 @@ namespace eita {
 		}
 
 		static void BackPropagation(RedeNeural rede,DataSet data) {
-            double e = 0;
-			foreach (var entry in data.entries) {
-				rede.SetarEntrada(entry.atributos);
-				rede.PassoForward();
-                rede.PassoBackward(rede.ObterErroQuadrático(entry.resultados));
-                e += rede.ObterErroQuadráticoSomatória(entry.resultados);
+			double erroAnterior = 1;
+			int i = 0;
+			while (true) {
+				var erroNeuronio = new double[rede.saída.Length];
+				foreach (var entry in data.entries) {
+					rede.SetarEntrada(entry.atributos);
+					rede.PassoForward();
+					rede.ObterErroQuadrático(entry.resultados,erroNeuronio);
+				}
+				double erroTotal = 0;
+				for (int a = 0; a < erroNeuronio.Length; a++) {
+					erroNeuronio[a] /= erroNeuronio.Length;
+					erroTotal += erroNeuronio[a];
+				}
+				var razão = erroTotal/erroAnterior;
+				if (i > 0 && razão < rede.limiar) break;
+				Console.WriteLine("iteração #{0}: erro de {1} ({2}/{3})",i,razão,erroTotal,erroAnterior);
+				rede.PassoBackward(erroNeuronio);
+				erroAnterior = erroTotal;
+				i++;
+				Console.ReadLine();
 			}
-			e /= data.entries.Count;
-			Console.WriteLine("erro: {0}",e);
+			Console.WriteLine("backpropagation terminado após {0} iterações!",i);
 		}
 
         static DataSet iniciarDataSet()
@@ -56,28 +70,20 @@ namespace eita {
             {
                 case 1:
                     return new DataSet("iris-NORMALIZED/Iris - NORMALIZED Table.csv", " Class", true, "iris-NORMALIZED/Iris - Class Label.csv");
-                    break;
                 case 2:
                     return null;
-                    break;
                 case 3:
                     return new DataSet("wine-NORMALIZED/Wine - NORMALIZED Table.csv", "Alcohol", false);
-                    break;
                 case 4:
                     return new DataSet("breast-cancer-NORMALIZED/Breast Cancer Wisconsin - NORMALIZED Table.csv", "Class", false);
-                    break;
                 case 5:
                     return new DataSet("winequality-red-NORMALIZED/Wine Quality - Red - NORMALIZED Table.csv", "Alcohol", false);
-                    break;
                 case 6:
                     return new DataSet("winequality-white-NORMALIZED/Wine Quality - White - NORMALIZED Table.csv", "Alcohol", false);
-                    break;
                 case 7:
                     return new DataSet("abalone-NORMALIZED/Abalone - NORMALIZED Table.csv", "Sex", true, "abalone-NORMALIZED/Abalone - Class Label.csv");
-                    break;
                 default:
                     return null;
-                    break;
             }
             
         }

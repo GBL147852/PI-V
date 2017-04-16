@@ -93,23 +93,12 @@ namespace eita {
 		/// obtém o erro quadrático a partir dos neurônios de saída.
 		/// </summary>
 		/// <param name="valores">valores esperados de saída</param>
-		/// <returns>erro quadrático</returns>
-		public double ObterErroQuadráticoSomatória(double[] valores) {
-			double eq = 0;
-			for (int a = 0; a < saída.Length && a < valores.Length; a++) {
+		/// <param name="output">resultado do método</param>
+		public void ObterErroQuadrático(double[] valores,double[] output) {
+			for (int a = 0; a < output.Length && a < valores.Length && a < saída.Length; a++) {
 				double e = valores[a]-saída[a];
-				eq += e*e;
+				output[a] += e*e/2;
 			}
-			return eq/2;
-		}
-
-		public double[] ObterErroQuadrático(double[] valores) {
-			var eq = new double[Math.Min(saída.Length,valores.Length)];
-			for (int a = 0; a < eq.Length; a++) {
-				double e = valores[a]-saída[a];
-				eq[a] = e*e/2;
-			}
-			return eq;
 		}
 
 		/// <summary>
@@ -137,7 +126,7 @@ namespace eita {
 		}
 
         /// <summary>
-		/// realiza o passo backward, utilizando resultados do passo foward e atualizando os pesos até a primeira.
+		/// realiza o passo backward, utilizando resultados do passo forward e atualizando os pesos até a primeira.
 		/// </summary>
 		public void PassoBackward(double[] Erros)
         {
