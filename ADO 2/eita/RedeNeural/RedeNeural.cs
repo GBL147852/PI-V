@@ -155,9 +155,7 @@ namespace eita {
                 for (int atual = 0; atual < neuAtual.Length; atual++)
                 {
                     //pegamos as conexões e atualizamos os pesos...
-                    Console.WriteLine("Antes [{0},{0}]: {0}", ant, atual, conexão.pesos[ant, atual]);
                     conexão.pesos[ant, atual] = taxaAprendizado * Erros[atual] * neuAtual[atual] * neuAnt[ant];
-                    Console.WriteLine("Depois [{0},{0}]: {0}", ant, atual, conexão.pesos[ant,atual]);
                     
                 }
             }
@@ -166,7 +164,7 @@ namespace eita {
             // --- ATÉ CHEGAR À CAMADA DE ENTRADA, UTILIZANDO A MATRIZ DE CONEXÕES ---
 
             //diminuimos esta dimensão, pois precisamos das demais conexões para chegar ao input layer
-            for (; con >= 0; con--)
+            for (; con > 0; con--)
             {
                 neuAtual = neurônios[con];
                 neuAnt = neurônios[con - 1];
@@ -178,9 +176,7 @@ namespace eita {
                     for (int atual = 0; atual < neuAtual.Length; atual++)
                     {
                         //pegamos as conexões e atualizamos os pesos...
-                        Console.WriteLine("Antes [{0},{0},{0}]: {0}", ant, atual, conexão.pesos[ant, atual]);
                         conexão.pesos[ant, atual] = conexão.pesos[ant,atual] * neuAtual[atual] * neuAnt[ant];
-                        Console.WriteLine("Depois [{0},{0},{0}]: {0}", ant, atual, conexão.pesos[ant, atual]);
 
                     }
                 }
