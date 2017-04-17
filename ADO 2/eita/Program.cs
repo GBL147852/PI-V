@@ -9,23 +9,14 @@ namespace eita {
 		static void Main(string[] args) {
 
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("en-UK");
-            var data = iniciarDataSet();
-			data.Embaralhar();
-			RodarDataSet(data);
-			/*
-			Console.WriteLine("{0} entradas!",data.entries.Count);
-			Console.WriteLine("atributos ({0}):",data.atributos.Length);
-			foreach (var atributo in data.atributos) {
-				Console.WriteLine("- {0}",atributo);
+			while (true) {
+				Console.Clear();
+				var data = iniciarDataSet();
+				data.Embaralhar();
+				RodarDataSet(data);
+				Console.WriteLine("pressione enter para recomeçar...");
+				Console.ReadLine();
 			}
-			Console.WriteLine("resultados ({0}):",data.resultados.Length);
-			foreach (var resultado in data.resultados) {
-				Console.WriteLine("- {0}",resultado);
-			}
-			var rede = new RedeNeural(data.atributos.Length,data.resultados.Length,3);
-			PassoTreinamento(rede,data);
-			*/
-			Console.ReadLine();
 		}
 
 		static int[] topologias = {
@@ -36,12 +27,12 @@ namespace eita {
 		const int partições = 10;
 
 		static void RodarDataSet(DataSet data) {
-			var entries = new List<DataSetEntry>[partições+2];
+			var entries = new List<DataSetEntry>[partições*2];
 			for (int p = 0; p < partições; p++) {
 				int start = (int)((double)data.entries.Count*p/partições);
 				int end = (int)((double)data.entries.Count*(p+1)/partições);
-				entries[p*2] = new List<DataSetEntry>();
-				entries[p*2+1] = new List<DataSetEntry>();
+				entries[p*2] = new List<DataSetEntry>(); //90%
+				entries[p*2+1] = new List<DataSetEntry>(); //10%
 				for (int a = 0; a < data.entries.Count; a++) {
 					if (a >= start && a < end) {
 						entries[p*2+1].Add(data.entries[a]);
@@ -50,7 +41,6 @@ namespace eita {
 					}
 				}
 			}
-			Console.WriteLine("1. comparação dos modelos de mlp");
 			int melhorTopologia = 0;
 			double melhorClassificação = 0;
 			int[,] melhorMatriz = null;
@@ -64,7 +54,7 @@ namespace eita {
 				for (int p = 0; p < partições; p++) {
 					var rede = new RedeNeural(data.atributos.Length,data.resultados.Length,camadasOcultas,neuroniosOcultos);
 					PassoTreinamento(rede,entries[t*2]);
-					int classificaçõesCorretas = 0;
+					double classificaçõesCorretas = 0;
 					double erroAbsoluto = 0;
 					double erroQuadrático = 0;
 					foreach (var entry in entries[t*2+1]) {
@@ -89,20 +79,21 @@ namespace eita {
 						erroAbsoluto += rede.ObterErroAbsoluto(esperado).Sum();
 						erroQuadrático += rede.ObterErroQuadrático(esperado).Sum();
 					}
-					classificaçõesCorretasMédias += classificaçõesCorretas;
-					erroAbsolutoMédio += erroAbsoluto/entries[t*2+1].Count;
-					erroQuadráticoMédio += Math.Sqrt(erroQuadrático/entries[t*2+1].Count);
+					int testes = entries[t*2+1].Count;
+					classificaçõesCorretasMédias += classificaçõesCorretas/testes;
+					erroAbsolutoMédio += erroAbsoluto/testes;
+					erroQuadráticoMédio += Math.Sqrt(erroQuadrático/testes);
 				}
 				erroAbsolutoMédio /= partições;
 				erroQuadráticoMédio /= partições;
 				classificaçõesCorretasMédias /= partições;
 				Console.WriteLine();
 				Console.WriteLine("TOPOLOGIA {2}: {0} camadas ocultas, com {1} neurônios em cada",camadasOcultas,neuroniosOcultos,t/2);
-				Console.WriteLine("classificações corretas: {0}%",classificaçõesCorretasMédias);
-				Console.WriteLine("erro absoluto médio: {0}%",erroAbsolutoMédio);
-				Console.WriteLine("erro quadrático médio: {0}%",erroQuadráticoMédio);
+				Console.WriteLine("classificações corretas: {0:F6}%",classificaçõesCorretasMédias*100);
+				Console.WriteLine("erro absoluto médio: {0:F6}",erroAbsolutoMédio*100);
+				Console.WriteLine("erro quadrático médio: {0:F6}",erroQuadráticoMédio);
 				Console.WriteLine();
-				if (melhorClassificação < classificaçõesCorretasMédias) {
+				if (melhorClassificação <= classificaçõesCorretasMédias) {
 					melhorClassificação = classificaçõesCorretasMédias;
 					melhorTopologia = t;
 					melhorMatriz = matrizDeConfusão;
@@ -114,7 +105,7 @@ namespace eita {
 			for (int i = 0; i < data.resultados.Length; i++) {
 				for (int j = 0; j < data.resultados.Length; j++) {
 					if (j > 0) Console.Write(" / ");
-					Console.Write("{0:F6}",melhorMatriz[i,j]);
+					Console.Write("{0,-2:F0}",melhorMatriz[i,j]);
 				}
 				Console.WriteLine();
 			}
@@ -124,6 +115,7 @@ namespace eita {
 
 		static void PassoTreinamento(RedeNeural rede,IEnumerable<DataSetEntry> entries) {
 			int i = 0;
+			double erroAnterior = 0;
 			while (true) {
 				var erroNeuronio = new double[rede.saída.Length];
 				int entryCount = 0;
@@ -139,13 +131,11 @@ namespace eita {
 					erroTotal += erroNeuronio[a];
 				}
 				erroTotal /= rede.saída.Length;
-				if (i > 0 && erroTotal < rede.limiar) break;
-				Console.WriteLine("iteração #{0}: erro de {1}",i,erroTotal);
+				if (i > 0 && Math.Abs(erroAnterior-erroTotal) < rede.limiar) break;
+				erroAnterior = erroTotal;
 				rede.PassoBackward(erroNeuronio);
 				i++;
-				Console.ReadLine();
 			}
-			Console.WriteLine("backpropagation terminado após {0} iterações!",i);
 		}
 
         static DataSet iniciarDataSet()
@@ -158,8 +148,8 @@ namespace eita {
             Console.WriteLine("5 - Wine Quality (Red)");
             Console.WriteLine("6 - Wine Quality (White)");
             Console.WriteLine("7 - Abalone");
-            int x = Int32.Parse(Console.ReadLine());
-
+			int x;
+			while (!int.TryParse(Console.ReadLine(),out x));
             switch (x)
             {
                 case 1:
