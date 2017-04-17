@@ -21,24 +21,32 @@ namespace eita {
 				Console.WriteLine("- {0}",resultado);
 			}
 			var rede = new RedeNeural(data.atributos.Length,data.resultados.Length,3);
-			BackPropagation(rede,data);
+			PassoTreinamento(rede,data);
 			Console.ReadLine();
 		}
 
-		static void BackPropagation(RedeNeural rede,DataSet data) {
+		static void PassoTeste(RedeNeural rede,DataSet data) {
+			for (int a = 0; a < data.entries.Count/10; a++) {
+				//
+			}
+		}
+
+		static void PassoTreinamento(RedeNeural rede,DataSet data) {
 			int i = 0;
 			while (true) {
 				var erroNeuronio = new double[rede.saída.Length];
-				foreach (var entry in data.entries) {
-					rede.SetarEntrada(entry.atributos);
+				int entries = 0;
+				for (int a = data.entries.Count/10; a < data.entries.Count; a++,entries++) {
+					rede.SetarEntrada(data.entries[a].atributos);
 					rede.PassoForward();
-					rede.ObterErroQuadrático(entry.resultados,erroNeuronio);
+					rede.ObterErroQuadrático(data.entries[a].resultados,erroNeuronio);
 				}
 				double erroTotal = 0;
 				for (int a = 0; a < erroNeuronio.Length; a++) {
-					erroNeuronio[a] /= data.entries.Count;
+					erroNeuronio[a] /= entries;
 					erroTotal += erroNeuronio[a];
 				}
+				erroTotal /= rede.saída.Length;
 				if (i > 0 && erroTotal < rede.limiar) break;
 				Console.WriteLine("iteração #{0}: erro de {1}",i,erroTotal);
 				rede.PassoBackward(erroNeuronio);
@@ -50,9 +58,6 @@ namespace eita {
 
         static DataSet iniciarDataSet()
         {
-            string caminho = "winequality-white-NORMALIZED/Wine Quality - White - NORMALIZED Table.csv";
-            string classe = "quality";
-
             Console.WriteLine("Selecione um DataSet:");
             Console.WriteLine("1 - Iris");
             Console.WriteLine("2 - Adult");
