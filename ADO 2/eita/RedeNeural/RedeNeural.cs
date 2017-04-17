@@ -102,6 +102,39 @@ namespace eita {
 		}
 
 		/// <summary>
+		/// obtém o erro absoluto a partir dos neurônios de saída.
+		/// </summary>
+		/// <param name="valores">valores esperados de saída</param>
+		/// <param name="output">resultado do método</param>
+		public void ObterErroAbsoluto(double[] valores,double[] output) {
+			for (int a = 0; a < output.Length && a < valores.Length && a < saída.Length; a++) {
+				output[a] += Math.Abs(valores[a]-saída[a]);
+			}
+		}
+
+		/// <summary>
+		/// obtém o erro quadrático a partir dos neurônios de saída.
+		/// </summary>
+		/// <param name="valores">valores esperados de saída</param>
+		/// <returns>resultado do método</returns>
+		public double[] ObterErroQuadrático(double[] valores) {
+			var output = new double[valores.Length];
+			ObterErroQuadrático(valores,output);
+			return output;
+		}
+
+		/// <summary>
+		/// obtém o erro absoluto a partir dos neurônios de saída.
+		/// </summary>
+		/// <param name="valores">valores esperados de saída</param>
+		/// <returns>resultado do método</returns>
+		public double[] ObterErroAbsoluto(double[] valores) {
+			var output = new double[valores.Length];
+			ObterErroAbsoluto(valores,output);
+			return output;
+		}
+
+		/// <summary>
 		/// realiza o passo forward, utilizando valores da primeira camada e atualizando até a última.
 		/// </summary>
 		public void PassoForward() {
@@ -187,5 +220,11 @@ namespace eita {
         {
             return (Math.Exp(-x) / Math.Pow((1 + Math.Exp(-x * sigmoideA)), 2));
         }
+
+		public double[] Testar(double[] entrada) {
+			SetarEntrada(entrada);
+			PassoForward();
+			return saída;
+		}
 	}
 }
