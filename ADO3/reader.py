@@ -2,12 +2,16 @@
 # -*- coding: UTF-8 -*-
 
 import csv
+import os
 
 def load(path):
 	entrada = []
 	classe = []
 	length = 0
-	with open('data/'+path+'.csv') as csvfile:
+	dir = os.path.dirname(__file__)
+	filename = os.path.join(dir, 'data/'+path+'.csv')
+	
+	with open(filename) as csvfile:
 		r = csv.reader(csvfile)
 		firstRow = True
 		for row in r:
