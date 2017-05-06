@@ -14,6 +14,12 @@ def main():
 		[0.805555556,0.666666667,0.86440678,1],
 		[0.555555556,0.541666667,0.847457627,1],
 	]
+	print "vai filho itera aí"
+	n = 0
+	for i in xrange(som.iteracoes):
+		som.atualizarPesos(entradas[n])
+		n = (n+1)%len(entradas)
+	print "foi!!"
 	print "coisos encontrados pras entradas:\n"
 	for i in entradas:
 		valor = som.obterNeuronioVencedor(i)

@@ -33,29 +33,36 @@ def sigma(n):
 	return SIGMA0 * (math.pow( math.e , n/T1 ))
 	
 	
-#Retorna a distância euclidiana entre x e y, dado d dimensões
-def distanciaEuclidiana(x, y, d):
-    distancia = 0
-    for i in range(d):
-		distancia += pow((x[i] - y[i]), 2)
-    return math.sqrt(distancia)
-    
+#Retorna a distância euclidiana quadrática entre x e y, dado d dimensões
+def distanciaQuadratica(x, y, d):
+	dist = 0
+	for i in range(d):
+		dist += (x[i]-y[i])**2
+	return dist
 	
-#Retorna o h_j,i_(n)
-def h(nx,ny,n):
-	expoente = (-((distanciaEuclidiana(nx,ny,2))**2)) / (2 * (sigma(n)**2) )
+	
+#Retorna a distância euclidiana entre x e y, dado d dimensões
+def distancia(x, y, d):
+	return math.sqrt(distanciaQuadratica(x,y,d))
+	
+	
+#Retorna o h_j,i_(n) dada a distância quadrática entre os pontos
+def h(d,n):
+	expoente = (-d) / (2 * (sigma(n)**2) )
 	return math.pow( math.e , expoente )
 	
 	
 #classes!!!!!
 class Som(object):
-	#inicializa o objeto com o número de atributos desejado
-	def __init__(self,atributos):
-		self.atributos = atributos
-		self.largura = quadradoMaisProximo(atributos)
+	#inicializa o objeto com o tanto de atributos das entradas
+	def __init__(self,entradasLen):
+		self.n = 0
+		self.entradasLen = entradasLen
+		self.largura = quadradoMaisProximo(entradasLen)
+		self.iteracoes = (self.largura**2)*500
 		#Traduzindo: Pego o quadrado mais próximo (i) da quantidade de atributos (a)
 		#			 e assim assumo uma matriz x[i][i][a]
-		self.pesos = [[[random.random() for x in range(self.atributos)]for i in range(self.largura)] for j in range(self.largura)]
+		self.pesos = [[[random.random() for x in range(self.entradasLen)]for i in range(self.largura)] for j in range(self.largura)]
 			
 		
 	#calcula o neurônio vencedor para as entradas dadas
@@ -65,9 +72,7 @@ class Som(object):
 		menorDist = -1
 		for i in range(self.largura):
 			for j in range(self.largura):
-				dist = 0
-				for n,x in enumerate(entradas):
-					dist += (x-self.pesos[i][j][n])**2
+				dist = distanciaQuadratica(entradas,self.pesos[i][j],self.entradasLen)
 				#se essa for a menor distância calculada (ou a primeira entrada),
 				#assume este neurônio como vencedor
 				#(fun fact, não precisa calcular a raiz da distância)
@@ -76,3 +81,24 @@ class Som(object):
 					menorJ = j
 					menorDist = dist
 		return (menorI,menorJ)
+		
+		
+	#atualiza os valores dos neurônios de acordo com uma nova entrada
+	def atualizarPesos(self,entradas):
+		nv = self.obterNeuronioVencedor(entradas)
+		for x in xrange(self.entradasLen):
+			peso = self.pesos[nv[0]][nv[1]][x]
+			peso += eta(self.n)*(entradas[x]-peso)
+			self.pesos[nv[0]][nv[1]][x] = peso
+		irange = range(max(nv[0]-R,0),min(nv[0]+R+1,self.largura))
+		jrange = range(max(nv[1]-R,0),min(nv[1]+R+1,self.largura))
+		Rquadrado = R*R
+		for i in irange:
+			for j in jrange:
+				dist = (i-nv[0])**2 + (j-nv[1])**2
+				if dist <= Rquadrado:
+					for x in xrange(self.entradasLen):
+						peso = self.pesos[i][j][x]
+						peso += eta(self.n)*h(dist,self.n)*(entradas[x]-peso)
+						self.pesos[i][j][x] = peso
+		self.n += 1
