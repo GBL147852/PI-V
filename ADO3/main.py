@@ -81,6 +81,7 @@ def parte2(dataset,largura=0):
 		[0,255,0],
 		[0,0,255],
 	]
+	random.shuffle(coresPossiveis)
 	cores = {}
 	for i in data:
 		if i[0] not in cores:
@@ -112,7 +113,7 @@ def parte2(dataset,largura=0):
 	print "classes e cores correspondentes:"
 	for k,v in cores.iteritems():
 		print "%d" % k, "->", v
-	
+		
 	#loop da janela
 	while window.loop():
 		window.drawMatrix(matriz)
@@ -123,9 +124,9 @@ def main():
 	print "\n"
 	window.start()
 	
-#	parte1(iteracoesPorFrame=50)
+	parte1(iteracoesPorFrame=18)
 #	parte2(dataset="breast")
-	parte2(dataset="iris")
+#	parte2(dataset="iris")
 #	parte2(dataset="wine")
 	
 	window.end()
