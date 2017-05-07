@@ -8,26 +8,30 @@ import reader
 import window
 
 #parte 1 dos resultados (cores)
-def parte1(iteracoesPorFrame=1,largura=0):
+def parte1(iteracoesPorFrame=1,largura=0,iteracoes=0,cores=0,aprendizado=0):
 	print "parte 1!\n"
-	
-	#inicializa uns valores
-	atributos = 3
-	if largura <= 0: largura = s.quadradoMaisProximo(atributos)
-	
-	#inicializa o som
-	som = s.Som(atributos=atributos,largura=largura,pesoMin=0,pesoMax=255)
 	
 	#entradas fixas. vermelho, amarelo, verde, turquesa, azul, rosa
 	entradas = [
-		[255,0	,0	],
-		[255,255,0	],
-		[0	,255,0	],
-		[0	,255,255],
-		[0	,0	,255],
-		[255,0	,255],
+		[255,0,0],
+		[255,255,0],
+		[0,255,0],
+		[0,255,255],
+		[0,0,255],
+		[255,0,255],
 	]
+	if cores > 0:
+		entradas = entradas[:cores]
+	else:
+		cores = len(entradas)
+	atributos = 3
 	n = 0
+	
+	#inicializa o som
+	if largura <= 0: largura = s.quadradoMaisProximo(cores)
+	som = s.Som(atributos=atributos,largura=largura,pesoMin=0,pesoMax=255)
+	if iteracoes > 0: som.iteracoes = iteracoes
+	if aprendizado > 0: som.N0 = aprendizado
 	
 	#loop da janela
 	while True:
@@ -44,7 +48,7 @@ def parte1(iteracoesPorFrame=1,largura=0):
 					n = (n+1)%len(entradas)
 					
 				if som.n >= som.iteracoes:
-					print "fim das iterações!\n"
+					print "fim das iterações!"
 					printEnd = 1
 					
 			window.drawMatrix(som.pesos)
@@ -54,7 +58,7 @@ def parte1(iteracoesPorFrame=1,largura=0):
 		if printEnd > 0:
 			
 			#printa os resultados no fim das iterações
-			print "entradas e neurônios vencedores correspondentes:"
+			print "\nentradas e neurônios vencedores correspondentes:"
 			for i in entradas:
 				neu = som.obterNeuronioVencedor(i)
 				print i, "->", neu
@@ -69,11 +73,7 @@ def parte2(dataset,largura=0):
 	#então ignoramos essa coluna sempre que possível
 	data = reader.load(dataset)
 	atributos = len(data[0])-1
-	if largura <= 0: largura = s.quadradoMaisProximo(atributos)
 	n = 0
-	
-	#inicializa o som
-	som = s.Som(atributos=atributos,largura=largura,pesoMin=0,pesoMax=1)
 	
 	#atribui as cores abaixo às classes
 	coresPossiveis = [
@@ -86,6 +86,10 @@ def parte2(dataset,largura=0):
 		if i[0] not in cores:
 			cores[i[0]] = coresPossiveis[0]
 			coresPossiveis = coresPossiveis[1:]
+	
+	#inicializa o som
+	if largura <= 0: largura = s.quadradoMaisProximo(len(cores))
+	som = s.Som(atributos=atributos,largura=largura,pesoMin=0,pesoMax=1)
 	
 	#itera!
 	print "número de iterações:", som.iteracoes
@@ -120,8 +124,8 @@ def main():
 	window.start()
 	
 #	parte1(iteracoesPorFrame=50)
-	parte2(dataset="breast")
-#	parte2(dataset="iris")
+#	parte2(dataset="breast")
+	parte2(dataset="iris")
 #	parte2(dataset="wine")
 	
 	window.end()
