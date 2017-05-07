@@ -56,13 +56,13 @@ class Som(object):
 		
 		
 	#inicializa o objeto com o tanto de atributos das entradas
-	def __init__(self,atributos,pesoMin,pesoMax):
+	def __init__(self,atributos,largura,pesoMin,pesoMax):
 		self.atributos = atributos
-		self.largura = quadradoMaisProximo(self.atributos)
+		self.largura = largura
 		self.iteracoes = (self.largura**2)*500
 		#Traduzindo: Pego o quadrado mais próximo (i) da quantidade de atributos (a)
 		#			 e assim assumo uma matriz x[i][i][a]
-		self.pesos = [[[random.uniform(pesoMin,pesoMax) for x in range(self.atributos)]for i in range(self.largura)] for j in range(self.largura)]
+		self.pesos = [[[random.uniform(pesoMin,pesoMax) for x in xrange(self.atributos)] for i in xrange(self.largura)] for j in xrange(self.largura)]
 			
 		
 	#calcula o neurônio vencedor para as entradas dadas
