@@ -24,30 +24,27 @@ def drawMatrix(matrix):
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
 	# make color squares proportional to screen size based on number of columns and lines
-	sizeX = 2.0 / len(matrix[0])
-	sizeY = 2.0 / len(matrix)
+	l = len(matrix)
+	size = 2.0 / l
 
 	# start drawing colored triangles
-	for j,line in enumerate(matrix):
-		for i,pixel in enumerate(line):
+	for i,line in enumerate(matrix):
+		for j,pixel in enumerate(line):
 
 			glBegin(GL_TRIANGLE_STRIP)
 
 			glColor4f(pixel[0]/255,pixel[1]/255,pixel[2]/255,1)
 
-			glVertex2f(-1 + sizeX*(j), -1 + sizeY*i)
-			glVertex2f(-1 + sizeX*(j), -1 + sizeY*(i+1))
-			glVertex2f(-1 + sizeX*((j+1)), -1 + sizeY*i)
-			glVertex2f(-1 + sizeX*((j+1)), -1 + sizeY*(i+1))
+			glVertex2f(-1 + size*(i), -1 + size*(l-j-1))
+			glVertex2f(-1 + size*(i), -1 + size*(l-j))
+			glVertex2f(-1 + size*((i+1)), -1 + size*(l-j-1))
+			glVertex2f(-1 + size*((i+1)), -1 + size*(l-j))
 
 			glEnd()
 
 #inicializa a janela
 def start():
 	global window
-	global width
-	global height
-	global ratio
 
 	# Initialize glfw
 	if not glfw.init():
@@ -64,7 +61,6 @@ def start():
 
 #verifica se o loop da janela tá acontecendo sla
 def loop():
-	global window
 	global width
 	global height
 	global ratio

@@ -12,8 +12,7 @@ def parte1(iteracoesPorFrame=1,largura=0):
 	
 	#inicializa tudo
 	atributos = 3
-	if largura <= 0:
-		largura = s.quadradoMaisProximo(atributos)
+	if largura <= 0: largura = s.quadradoMaisProximo(atributos)
 	som = s.Som(atributos=atributos,largura=largura,pesoMin=0,pesoMax=255)
 	entradas = [
 		[255,0	,0	],
@@ -44,19 +43,18 @@ def parte1(iteracoesPorFrame=1,largura=0):
 		if printEnd > 0:
 			print "coisos encontrados pras entradas:\n"
 			for i in entradas:
-				valor = som.obterNeuronioVencedor(i)
+				neu = som.obterNeuronioVencedor(i)
 				print "entradas:", "%.5f " * len(i) % tuple(i)
-				print "neurônio vencedor:", valor[0], "x", valor[1], "\n"
+				print "neurônio vencedor:", neu[0], "x", neu[1], "\n"
 			if printEnd == 2: break
 
 def parte2(dataset,largura=0):
 	print "parte 2!"
 	
 	#carrega o dataset e inicializa tudo
-	dataLen,entradas,classes = reader.load(dataset)
-	atributos = len(entradas[0])-1
-	if largura <= 0:
-		largura = s.quadradoMaisProximo(len(entradas[0])-1)
+	data = reader.load(dataset)
+	atributos = len(data[0])-1
+	if largura <= 0: largura = s.quadradoMaisProximo(atributos)
 	som = s.Som(atributos=atributos,largura=largura,pesoMin=0,pesoMax=1)
 	n = 0
 	
@@ -67,25 +65,26 @@ def parte2(dataset,largura=0):
 		[0,0,255],
 	]
 	cores = {}
-	for i in classes:
-		if i not in cores:
-			cores[i] = coresPossiveis[0]
+	for i in data:
+		if i[0] not in cores:
+			cores[i[0]] = coresPossiveis[0]
 			coresPossiveis = coresPossiveis[1:]
 	
 	#itera!
 	print "iterando...", som.iteracoes
 	while som.n < som.iteracoes:
-		som.atualizarPesos(entradas[n][1:])
-		n = (n+1)%len(entradas)
+		som.atualizarPesos(data[n][1:])
+		n = (n+1)%len(data)
 	
-	#resultados + cria a matriz final
+	#cria a matriz final
 	matriz = [[[0 for x in xrange(3)] for i in xrange(som.largura)] for j in xrange(som.largura)]
-	print "coisos encontrados pras entradas:\n"
-	for n,i in enumerate(entradas):
-		valor = som.obterNeuronioVencedor(i)
-		print "entradas:", "%.5f " * len(i) % tuple(i)
-		print "neurônio vencedor:", valor[0], "x", valor[1], "\n"
-		matriz[valor[0]][valor[1]] = cores[classes[n]]
+	for i in data:
+		neu = som.obterNeuronioVencedor(i[1:])
+		matriz[neu[0]][neu[1]] = cores[i[0]]
+		
+	#infos das cores
+	for k,v in cores.iteritems():
+		print "classe", "%d" % k, "-> cor", v
 	
 	#loop da janela
 	while window.loop():
@@ -94,9 +93,9 @@ def parte2(dataset,largura=0):
 			
 def main():
 	window.start()
-	parte1(largura=25,iteracoesPorFrame=50)
+#	parte1(largura=25,iteracoesPorFrame=50)
 #	parte2(dataset="breast")
-#	parte2(dataset="iris")
+	parte2(dataset="iris")
 #	parte2(dataset="wine")
 	window.end()
 main()
