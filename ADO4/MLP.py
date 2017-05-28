@@ -161,19 +161,20 @@ def LoadDataSet(path):
     random.shuffle(data)
     return data
 
-data = LoadDataSet("iris")
+data = LoadDataSet("wine")
 treinamento = data[:(len(data)*9/10)]
 teste = data[(len(data)*9/10):]
 
 classes = 3
 inputs = len(data[0])-1
+print len(data), "entradas"
 rede = RedeNeural(entradas=inputs, saidas=classes, camadasOcultas=classes, hiddenNeurons=classes)
 
 #Treinamento
 while(True):
     for entrada in treinamento:
-        esperado = [0,0,0]
-        esperado[int(entrada[0])] = 1
+        esperado = [0] * classes
+        esperado[(int(entrada[0]))-1] = 1
         rede.SetarEntrada(valores = entrada[1:])
         rede.PassoForward()
         rede.PassoBackward(rede.ObterErroAbsoluto(valores = esperado))
@@ -187,11 +188,10 @@ while(True):
 quantAcertos = 0
 #Teste
 for entrada in teste:
-    esperado = [0,0,0]
-    esperado[int(entrada[0])] = 1
-    print rede.Teste(inputs = entrada, valores = esperado)
+    esperado = [0] * classes
+    esperado[(int(entrada[0]))-1] = 1    
     quantAcertos += rede.Teste(inputs = entrada, valores = esperado)
-print quantAcertos, "/", len(teste)
+print (float(quantAcertos) / float(len(teste)))*100.0 , "% belezinha"
 
 
 raw_input()
