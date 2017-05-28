@@ -9,8 +9,7 @@ class Conexoes():
     def __init__(self, camadax, camaday, aleatorizar = True):
         self.qtdAtual = camadax + 1
         self.qtdProx = camaday
-        self.pesos = [[random.uniform(0,1) for y in range(qtdProx)] for x in range(qtdAtual)]
-
+        self.pesos = [[random.uniform(0,1) for y in range(self.qtdProx)] for x in range(self.qtdAtual)]
 
 
 class RedeNeural():
@@ -18,117 +17,131 @@ class RedeNeural():
     limiar = 0.01
     momentum = 0
     taxaAprendizado = 0.01
+    count = 1
+    erroQuadMedio = 0
+    erroQuadMedioAnt = 0
 
-
-    def __init__(self, entradas, saidas, camadasOcultas, neuroniosOcultos):
-        self.neuronios = [[]for x in range(camadasOcultas+2)]
-        self.conexoes = [Conexoes()] * (camadasOcultas+1)
-        self.neuronios[0] = [] * entradas
+    def __init__(self, entradas, saidas, camadasOcultas, hiddenNeurons):
+        self.neuronios = [[0]for x in range(camadasOcultas+2)]
+        self.conexoes = [0] * (camadasOcultas+1)
+        self.neuronios[0] = [0] * entradas
         self.entrada = self.neuronios[0]
-        self.neuronios[camadasOcultas+1] = [] * saidas
+        self.neuronios[camadasOcultas+1] = [0] * saidas
         self.saida = self.neuronios[camadasOcultas+1]
         for i in range (1,camadasOcultas+1):
-            self.neuronios[i] = [] * neuroniosOcultos;
-        for i in range (1,camadasOcultas+1):
-            self.conexoes[i] = Conexoes(self.neuronios[i].Length, self.neuronios[a+1].Length, True)
-
-    def __init__(self, entradas, saidas, camadasOcultas):
-        if entradas > saidas:
-            a = entradas
-        else:
-            a = saidas
-        this(entradas, saidas, camadasOcultas, a * 2)
+            self.neuronios[i] = [0] * hiddenNeurons;
+        for i in range (0,camadasOcultas+1):
+            self.conexoes[i] = Conexoes(camadax=len(self.neuronios[i]), camaday=len(self.neuronios[i+1]), aleatorizar=True)
 
     def Sigmoide(self, x):
         return 1 / (1 + math.exp(-x * self.sigmoideA))
 
     def SigmoideDeriv(self, x):
-        return (math.exp(-x) / math.pow((1+math.exp(-x*sigmoideA)), 2))
+        return (math.exp(-x) / math.pow((1+math.exp(-x*self.sigmoideA)), 2))
 
 
     def Debug(self):
         print "--"
-        for a in range (0,self.conexoes.Length):
+        for a in range (0,len(self.conexoes)):
             print "[conexoes camadas ", a, " -> ", (a+1)
             for prox in range (0,self.conexoes[a].qtdProx):
                 print "neuronio ", prox, ":"
                 for atual in range (0, self.conexoes[a].qtdAtual):
-                    print self.conexoes[a].pesos[atual,prox]
+                    print self.conexoes[a].pesos[atual][prox]
         print "--"
 
 
     def SetarEntrada(self, valores = []):
         a = 0
         while True:
-            if a < entrada.Length and a < valores.Length:
-                entrada[a] = valores[a]
+            if a < len(self.entrada) and a < len(valores):
+                self.entrada[a] = valores[a]
             else:
                 break
             a += 1
 
-
-    def ObterErroQuadratico(self, valores = [], output = []):
-        while True:
-            if a < output.Length and a < valores.Length and a < self.saida.Length:
-                e = valores[a] - self.saida[a]
-                output[a] += e*e/2
-            else:
-                break
-            a += 1
-
-    def ObterErroAbsoluto(self, valores = [], output = []):
-        while True:
-            if a < output.Length and a < valores.Length and a < self.saida.Length:
-                output[a] += math.abs(valores[a] - self.saida[a])
-            else:
-                break
-            a += 1
 
     def ObterErroQuadratico(self, valores = []):
-        output = [] * valores.Length
-        ObterErroQuadratico(valores, output)
+        a = 0
+        output = 0
+        while True:
+            if a < len(valores) and a < len(self.saida):
+                e = valores[a] - self.saida[a]
+                output += e*e/2
+            else:
+                break
+            a += 1
         return output
 
     def ObterErroAbsoluto(self, valores = []):
-        output = [] * valores.Length
-        ObterErroAbsoluto(valores, output)
+        a = 0
+        output = [0] * len(valores)
+        while True:
+            if a < len(valores) and a < len(self.saida):
+                e = valores[a] - self.saida[a]
+                output[a] = e
+            else:
+                break
+            a += 1
         return output
 
+    def ErroQuadraticoMedio(self, erroQuadratico):
+        self.erroQuadMedio *= self.count
+        self.erroQuadMedio += erroQuadratico
+        self.count += 1
+        self.erroQuadMedio /= self.count
+        return self.erroQuadMedio
 
     def PassoForward(self):
-        for con in range(0,self.conexoes.Length):
+        for con in range(0,len(self.conexoes)):
             neuAtual = self.neuronios[con]
             neuProx = self.neuronios[con+1]
             conexao = self.conexoes[con]
-            for prox in range(0, neuProx.Length):
+            for prox in range(0, len(neuProx)):
                 v = 0
-                for atual in range(0, neuAtual.Length):
-                    v += conexao.pesos[atual,prox]*neuAtual[atual]
-                v += conexao.pesos[neuAtual.Length,prox]
-                neuProx[prox] = Sigmoide(v)
+                for atual in range(0, len(neuAtual)):
+                    v += conexao.pesos[atual][prox]*neuAtual[atual]
+                v += conexao.pesos[len(neuAtual)][prox]
+                neuProx[prox] = self.Sigmoide(v)
+        
+    def Teste(self, inputs = [], valores = []):
+        self.SetarEntrada(inputs)
+        self.PassoForward()
+        classeObtida = self.saida.index(max(self.saida))
+        classeEsperada = valores.index(max(valores))
+        if classeObtida == classeEsperada:
+            return 1
+        else:
+            return 0
 
-    def PassoBackward(self, Erros = []):
-        con = self.conexoes.Length
+    def PassoBackward(self, Erro = []):
+        con = len(self.conexoes)
         neuAtual = self.neuronios[con]
         neuAnt = self.neuronios[con-1]
         conexao = self.conexoes[con-1]
+        deltaAnt = 0
+        deltaAtual = 0
         
-        for ant in range (0, neuAnt.Length):
-            for atual in range (0, neuAtual.Length):
-                self.conexoes.pesos[ant,atual] = self.taxaAprendizado * Erros[atual] * neuAtual[atual] * neuAnt[ant]
+        
+        for ant in range (0, len(neuAnt)):
+            for atual in range (0, len(neuAtual)):
+                deltaAnt += Erro[atual] * self.SigmoideDeriv(x = neuAtual[atual]) * conexao.pesos[ant][atual]
+                conexao.pesos[ant][atual] += self.taxaAprendizado * (Erro[atual] * self.SigmoideDeriv(x = neuAtual[atual])) * neuAnt[ant]
 
-        for x in range (con,0,-1):
-            neuAtual = self.neuronios[con]
-            neuAnt = self.neuronios[con-1]
-            conexao = self.conexoes[con-1]
-            for ant in range (0, neuAnt.Length):
-                for atual in range (0, neuAtual.Length):
-                    self.conexao.pesos[ant, atual] = SigmoideDeriv(neuAtual[atual]) * conexao.pesos[ant,atual] * neuAtual[atual] * neuAnt[ant]
 
-    def Testar(self, entrada = []):
-        SetarEntrada(entrada)
-        PassoForward()
-        return self.saida;
+        for x in range (con-1,0,-1):
+            neuAtual = self.neuronios[x]
+            neuAnt = self.neuronios[x-1]
+            conexao = self.conexoes[x-1]
+            for ant in range (0, len(neuAnt)):
+                for atual in range (0, len(neuAtual)):
+                    deltaAtual += self.SigmoideDeriv(x = neuAtual[atual]) * deltaAnt * conexao.pesos[ant][atual]
+                    conexao.pesos[ant][atual] += self.taxaAprendizado * (self.SigmoideDeriv(x = neuAtual[atual]) * deltaAnt) * neuAnt[ant]
+            deltaAnt = deltaAtual
+            deltaAtual = 0
+
+
+        
 
 
 def LoadDataSet(path):
@@ -147,3 +160,38 @@ def LoadDataSet(path):
                 
     random.shuffle(data)
     return data
+
+data = LoadDataSet("iris")
+treinamento = data[:(len(data)*9/10)]
+teste = data[(len(data)*9/10):]
+
+classes = 3
+inputs = len(data[0])-1
+rede = RedeNeural(entradas=inputs, saidas=classes, camadasOcultas=classes, hiddenNeurons=classes)
+
+#Treinamento
+while(True):
+    for entrada in treinamento:
+        esperado = [0,0,0]
+        esperado[int(entrada[0])] = 1
+        rede.SetarEntrada(valores = entrada[1:])
+        rede.PassoForward()
+        rede.PassoBackward(rede.ObterErroAbsoluto(valores = esperado))
+    rede.count += 1
+    rede.erroQuadMedioAnt = rede.erroQuadMedio
+    rede.erroQuadMedio = rede.ErroQuadraticoMedio(rede.ObterErroQuadratico(valores = esperado))
+    print "|", rede.erroQuadMedio, " - ", rede.erroQuadMedioAnt, "| = ", abs(rede.erroQuadMedioAnt - rede.erroQuadMedio)
+    if(abs(rede.erroQuadMedioAnt - rede.erroQuadMedio) < rede.limiar):
+        break
+
+quantAcertos = 0
+#Teste
+for entrada in teste:
+    esperado = [0,0,0]
+    esperado[int(entrada[0])] = 1
+    print rede.Teste(inputs = entrada, valores = esperado)
+    quantAcertos += rede.Teste(inputs = entrada, valores = esperado)
+print quantAcertos, "/", len(teste)
+
+
+raw_input()
