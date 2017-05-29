@@ -13,7 +13,6 @@ class Conexoes():
 
 
 class RedeNeural():
-    sigmoideA = 1
     limiar = 0.01
     momentum = 0
     taxaAprendizado = 0.01
@@ -34,10 +33,10 @@ class RedeNeural():
             self.conexoes[i] = Conexoes(camadax=len(self.neuronios[i]), camaday=len(self.neuronios[i+1]), aleatorizar=True)
 
     def Sigmoide(self, x):
-        return 1 / (1 + math.exp(-x * self.sigmoideA))
+        return 1 / (1 + math.exp(-x))
 
     def SigmoideDeriv(self, x):
-        return (math.exp(-x) / math.pow((1+math.exp(-x*self.sigmoideA)), 2))
+        return self.Sigmoide(x)*(1-self.Sigmoide(x))
 
 
     def Debug(self):
@@ -84,13 +83,7 @@ class RedeNeural():
                 break
             a += 1
         return output
-
-    def ErroQuadraticoMedio(self, erroQuadratico):
-        self.erroQuadMedio *= self.count
-        self.erroQuadMedio += erroQuadratico
-        self.count += 1
-        self.erroQuadMedio /= self.count
-        return self.erroQuadMedio
+        
 
     def PassoForward(self):
         for con in range(0,len(self.conexoes)):
@@ -119,29 +112,38 @@ class RedeNeural():
         neuAtual = self.neuronios[con]
         neuAnt = self.neuronios[con-1]
         conexao = self.conexoes[con-1]
-        deltaAnt = 0
-        deltaAtual = 0
+        
+        GradienteAtual = [0] * len(neuAtual)
         
         
-        for ant in range (0, len(neuAnt)):
-            for atual in range (0, len(neuAtual)):
-                deltaAnt += Erro[atual] * self.SigmoideDeriv(x = neuAtual[atual]) * conexao.pesos[ant][atual]
-                conexao.pesos[ant][atual] += self.taxaAprendizado * (Erro[atual] * self.SigmoideDeriv(x = neuAtual[atual])) * neuAnt[ant]
-
+        for i in range (0, len(neuAnt)):
+            for j in range (0, len(neuAtual)):
+                GradienteAtual[j] = self.GradienteSaida(valNeuron = neuAtual[j], erroAtual= Erro[j])
+                conexao.pesos[i][j] += self.taxaAprendizado * GradienteAtual[j] * neuAnt[i]
+        
 
         for x in range (con-1,0,-1):
             neuAtual = self.neuronios[x]
             neuAnt = self.neuronios[x-1]
             conexao = self.conexoes[x-1]
-            for ant in range (0, len(neuAnt)):
-                for atual in range (0, len(neuAtual)):
-                    deltaAtual += self.SigmoideDeriv(x = neuAtual[atual]) * deltaAnt * conexao.pesos[ant][atual]
-                    conexao.pesos[ant][atual] += self.taxaAprendizado * (self.SigmoideDeriv(x = neuAtual[atual]) * deltaAnt) * neuAnt[ant]
-            deltaAnt = deltaAtual
-            deltaAtual = 0
+            GradienteProx = GradienteAtual
+            GradienteAtual = [0] * len(neuAtual)
+            for i in range (0, len(neuAnt)):
+                for j in range (0, len(neuAtual)):
+                    GradienteAtual[j] = self.GradienteOculta(valNeuron = neuAtual[j], j = j, camada = x, GradienteProximo = GradienteProx)
+                    conexao.pesos[i][j] += self.taxaAprendizado * GradienteAtual[j] * neuAnt[i]
+
+    def GradienteOculta(self, valNeuron, j, camada, GradienteProximo = []):
+        somatoria = 0
+        conexao = self.conexoes[camada]
+        for k in range(len(conexao.pesos[j])):
+            somatoria += conexao.pesos[j][k] * GradienteProximo[k]
+        return self.SigmoideDeriv(x = valNeuron) * somatoria
+
+    def GradienteSaida(self, valNeuron, erroAtual):
+        return erroAtual * self.SigmoideDeriv(x = valNeuron)
 
 
-        
 
 
 def LoadDataSet(path):
@@ -164,10 +166,11 @@ def LoadDataSet(path):
 data = LoadDataSet("wine")
 treinamento = data[:(len(data)*9/10)]
 teste = data[(len(data)*9/10):]
+tamanhoDataset = len(data)
 
 classes = 3
 inputs = len(data[0])-1
-print len(data), "entradas"
+print len(data), "entradas com ", inputs, " atributos"
 rede = RedeNeural(entradas=inputs, saidas=classes, camadasOcultas=classes, hiddenNeurons=classes)
 
 #Treinamento
@@ -178,12 +181,15 @@ while(True):
         rede.SetarEntrada(valores = entrada[1:])
         rede.PassoForward()
         rede.PassoBackward(rede.ObterErroAbsoluto(valores = esperado))
+        rede.erroQuadMedio += rede.ObterErroQuadratico(valores = esperado)
     rede.count += 1
-    rede.erroQuadMedioAnt = rede.erroQuadMedio
-    rede.erroQuadMedio = rede.ErroQuadraticoMedio(rede.ObterErroQuadratico(valores = esperado))
+    rede.erroQuadMedio = rede.erroQuadMedio / tamanhoDataset
     print "|", rede.erroQuadMedio, " - ", rede.erroQuadMedioAnt, "| = ", abs(rede.erroQuadMedioAnt - rede.erroQuadMedio)
     if(abs(rede.erroQuadMedioAnt - rede.erroQuadMedio) < rede.limiar):
+    # if( rede.erroQuadMedio < rede.limiar):
         break
+    rede.erroQuadMedioAnt = rede.erroQuadMedio
+    rede.erroQuadMedio = 0
 
 quantAcertos = 0
 #Teste
