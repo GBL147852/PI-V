@@ -27,10 +27,10 @@ class RedeNeural():
         self.entrada = self.neuronios[0]
         self.neuronios[camadasOcultas+1] = [0] * saidas
         self.saida = self.neuronios[camadasOcultas+1]
-        for i in range (1,camadasOcultas+1):
-            self.neuronios[i] = [0] * hiddenNeurons;
-        for i in range (0,camadasOcultas+1):
-            self.conexoes[i] = Conexoes(camadax=len(self.neuronios[i]), camaday=len(self.neuronios[i+1]), aleatorizar=True)
+        for l in range (1,camadasOcultas+1):
+            self.neuronios[l] = [0] * hiddenNeurons;
+        for l in range (0,camadasOcultas+1):
+            self.conexoes[l] = Conexoes(camadax=len(self.neuronios[l]), camaday=len(self.neuronios[l+1]), aleatorizar=True)
 
     def Sigmoide(self, x):
         return 1 / (1 + math.exp(-x))
@@ -41,61 +41,61 @@ class RedeNeural():
 
     def Debug(self):
         print "--"
-        for a in range (0,len(self.conexoes)):
-            print "[conexoes camadas ", a, " -> ", (a+1)
-            for prox in range (0,self.conexoes[a].qtdProx):
-                print "neuronio ", prox, ":"
-                for atual in range (0, self.conexoes[a].qtdAtual):
-                    print self.conexoes[a].pesos[atual][prox]
+        for l in range (0,len(self.conexoes)):
+            print "[conexoes camadas ", l, " -> ", (l+1)
+            for j in range (0,self.conexoes[l].qtdProx):
+                print "neuronio ", j, ":"
+                for i in range (0, self.conexoes[l].qtdAtual):
+                    print self.conexoes[l].pesos[i][j]
         print "--"
 
 
     def SetarEntrada(self, valores = []):
-        a = 0
+        i = 0
         while True:
-            if a < len(self.entrada) and a < len(valores):
-                self.entrada[a] = valores[a]
+            if i < len(self.entrada) and i < len(valores):
+                self.entrada[i] = valores[i]
             else:
                 break
-            a += 1
+            i += 1
 
 
     def ObterErroQuadratico(self, valores = []):
-        a = 0
+        i = 0
         output = 0
         while True:
-            if a < len(valores) and a < len(self.saida):
-                e = valores[a] - self.saida[a]
+            if i < len(valores) and i < len(self.saida):
+                e = valores[i] - self.saida[i]
                 output += e*e/2
             else:
                 break
-            a += 1
+            i += 1
         return output
 
     def ObterErroAbsoluto(self, valores = []):
-        a = 0
+        i = 0
         output = [0] * len(valores)
         while True:
-            if a < len(valores) and a < len(self.saida):
-                e = valores[a] - self.saida[a]
-                output[a] = e
+            if i < len(valores) and i < len(self.saida):
+                e = valores[i] - self.saida[i]
+                output[i] = e
             else:
                 break
-            a += 1
+            i += 1
         return output
         
 
     def PassoForward(self):
-        for con in range(0,len(self.conexoes)):
-            neuAtual = self.neuronios[con]
-            neuProx = self.neuronios[con+1]
-            conexao = self.conexoes[con]
-            for prox in range(0, len(neuProx)):
+        for l in range(0,len(self.conexoes)):
+            neuAtual = self.neuronios[l]
+            neuProx = self.neuronios[l+1]
+            conexao = self.conexoes[l]
+            for j in range(0, len(neuProx)):
                 v = 0
-                for atual in range(0, len(neuAtual)):
-                    v += conexao.pesos[atual][prox]*neuAtual[atual]
-                v += conexao.pesos[len(neuAtual)][prox]
-                neuProx[prox] = self.Sigmoide(v)
+                for i in range(0, len(neuAtual)):
+                    v += conexao.pesos[i][j]*neuAtual[i]
+                v += conexao.pesos[len(neuAtual)][j]
+                neuProx[j] = self.Sigmoide(v)
         
     def Teste(self, inputs = [], valores = []):
         self.SetarEntrada(inputs)
@@ -163,21 +163,21 @@ def LoadDataSet(path):
     random.shuffle(data)
     return data
 
-data = LoadDataSet("wine")
+data = LoadDataSet("adult")
 treinamento = data[:(len(data)*9/10)]
 teste = data[(len(data)*9/10):]
 tamanhoDataset = len(data)
 
-classes = 3
+classes = 2
 inputs = len(data[0])-1
 print len(data), "entradas com ", inputs, " atributos"
-rede = RedeNeural(entradas=inputs, saidas=classes, camadasOcultas=classes, hiddenNeurons=classes)
+rede = RedeNeural(entradas=inputs, saidas=classes, camadasOcultas=3, hiddenNeurons=3)
 
 #Treinamento
 while(True):
     for entrada in treinamento:
         esperado = [0] * classes
-        esperado[(int(entrada[0]))-1] = 1
+        esperado[(int(entrada[0]))] = 1
         rede.SetarEntrada(valores = entrada[1:])
         rede.PassoForward()
         rede.PassoBackward(rede.ObterErroAbsoluto(valores = esperado))
@@ -195,7 +195,7 @@ quantAcertos = 0
 #Teste
 for entrada in teste:
     esperado = [0] * classes
-    esperado[(int(entrada[0]))-1] = 1    
+    esperado[(int(entrada[0]))] = 1    
     quantAcertos += rede.Teste(inputs = entrada, valores = esperado)
 print (float(quantAcertos) / float(len(teste)))*100.0 , "% belezinha"
 
