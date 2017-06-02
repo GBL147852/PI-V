@@ -37,7 +37,7 @@ class Connection(object):
 class NeuralNetwork(object):
 	AvgError = 0
 	PrevAvgError = 0
-	LearningRage = 0.01
+	LearningRate = 0.01
 	Count = 1
 	threshold = 0.01
 
@@ -125,19 +125,66 @@ class NeuralNetwork(object):
 			jLayer.neurons[j].value = self.Sigmoid(v)
 
 	def BackwardStep(self, errors = []):
-		for l in range(len(self.layers)-1, 1, -1):
+		iLayer = self.layers[len(self.layers)-2]
+		jLayer = self.layers[len(self.layers)-1]
+		connection = self.connections[len(self.layers)-2]
+		for i in range(connection.i):
+			for j in range(connection.j):
+				jLayer.neurons[j].gradient = self.OutputGradient(error = errors[j], neuronValue = jLayer.neurons[j].value)
+				connection.weights[i][j] += (self.LearningRate * jLayer.neurons[j].gradient * iLayer.neurons[i].value)
+
+		for l in range(len(self.layers)-2, 1, -1):
 			iLayer = self.layers[(l-1)]
 			jLayer = self.layers[l]
-
+			connection = self.connections[(l-1)]
+			for i in range(connection.i):
+				for j in range(connection.j):
+					jLayer.neurons[j+1].gradient = self.HiddenGradient(neuronValue = jLayer.neurons[j+1].value, neuronIndex = j, layerIndex = l-1)
+					connection.weights[i][j] += (self.LearningRate * jLayer.neurons[j+1].gradient * iLayer.neurons[i].value)
 			
+	def allToZero(self):
+		for layer in self.layers:
+			for neuron in layer.neurons:
+				neuron.value = 0
+
+	def checkResults(self):
+		greaterResult = -1
+		greaterIndex = -1
+
+		for i in range(len(self.layers[self.outputLayer].neurons)):
+			# print "Checagem: ", i, " - ", self.layers[self.outputLayer].neurons[i].value
+			if self.layers[self.outputLayer].neurons[i].value > greaterResult:
+				greaterIndex = i
+				greaterResult = self.layers[self.outputLayer].neurons[i].value
+		return greaterIndex
+
+	def TestingSet(self, inputs = [[]]):
+		countRight = 0
+		for entrance in inputs:
+			attributes = entrance[1:]
+			expected = int(entrance[0])
+			self.allToZero()
+			self.SetInput(attributes)
+			self.ForwardStep()
+			print self.checkResults(), " - ", expected
+			if(self.checkResults() == expected):
+				countRight += 1
+			# self.PrintRede()
+			# raw_input()
+		print countRight, " out of ", len(inputs)
+		return float(countRight)/float(len(inputs)) * 100
 
 
-
-	def HiddenGradient(self, neuron, neuronIndex, layer, layerIndex):
-		print "AAAAAAAA"
+	def HiddenGradient(self, neuronValue, neuronIndex, layerIndex):
+		kLayer = self.layers[layerIndex+1]
+		connection = self.connections[layerIndex].weights
+		sequence = 0
+		for k in range(1,len(kLayer.neurons)):
+			sequence += connection[neuronIndex+1][k-1] * kLayer.neurons[k-1].gradient
+		return sequence * self.DerivativeSigmoid(value = neuronValue)
 	
-	def OutputGradient(self, neuron, neuronIndex):
-		print "AAAAAAAA"
+	def OutputGradient(self, error, neuronValue):
+		return (error * self.DerivativeSigmoid(value = neuronValue))
 
 class Dataset(object):
 	def __init__(self, path, classes):
@@ -181,5 +228,12 @@ def main():
 
 		neural.PrevAvgError = neural.AvgError
 		neural.AvgError = 0
+
+	# print '\n'
+	# for connection in neural.connections:
+	# 	for linha in connection.weights:
+	# 		print linha
+	# 	print '\n'
+	print neural.TestingSet(inputs = dataset.testing)
 
 main()
