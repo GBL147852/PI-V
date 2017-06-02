@@ -90,7 +90,7 @@ class NeuralNetwork(object):
 		error /= 2.0
 		return error
 
-	def PrintRede(self):
+	def PrintNetwork(self):
 		for layer in self.layers:
 			for neuron in layer.neurons:
 				print neuron.value
@@ -166,10 +166,10 @@ class NeuralNetwork(object):
 			self.allToZero()
 			self.SetInput(attributes)
 			self.ForwardStep()
+			# self.PrintNetwork()
 			print self.checkResults(), " - ", expected
 			if(self.checkResults() == expected):
 				countRight += 1
-			# self.PrintRede()
 			# raw_input()
 		print countRight, " out of ", len(inputs)
 		return float(countRight)/float(len(inputs)) * 100
@@ -223,17 +223,12 @@ def main():
 		neural.AvgError /= dataset.instances
 		
 		print "|", neural.AvgError, " - ", neural.PrevAvgError, "| = ", abs(neural.AvgError-neural.PrevAvgError)
-		if abs(neural.AvgError-neural.PrevAvgError) < neural.threshold:
+		if abs(neural.AvgError) < 0.3:
 			break;
 
 		neural.PrevAvgError = neural.AvgError
 		neural.AvgError = 0
 
-	# print '\n'
-	# for connection in neural.connections:
-	# 	for linha in connection.weights:
-	# 		print linha
-	# 	print '\n'
 	print neural.TestingSet(inputs = dataset.testing)
 
 main()
