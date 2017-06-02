@@ -223,7 +223,7 @@ def main():
 		neural.AvgError /= dataset.instances
 		
 		print "|", neural.AvgError, " - ", neural.PrevAvgError, "| = ", abs(neural.AvgError-neural.PrevAvgError)
-		if abs(neural.AvgError) < 0.3:
+		if abs(neural.AvgError - neural.PrevAvgError) < neural.limiar:
 			break;
 
 		neural.PrevAvgError = neural.AvgError
