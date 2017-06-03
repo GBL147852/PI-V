@@ -38,7 +38,7 @@ class NeuralNetwork(object):
 	AvgError = 0
 	PrevAvgError = 0
 	LearningRate = 0.1
-	Count = 1
+	Count = 0
 	#threshold = 0.0001
 	threshold = 0.17
 
@@ -210,32 +210,34 @@ class Dataset(object):
 
 def main():
 	dataset = Dataset(path = "iris", classes = 3)
-	neural = NeuralNetwork(inputNumber = dataset.inputs, classes = 3, hiddenLayers = 2, hiddenNeurons = 7)
+	neural = NeuralNetwork(inputNumber = dataset.inputs, classes = 3, hiddenLayers = 2, hiddenNeurons = 9)
+	maxIter = 200
 	print '=== DATASET INFO ===\n'
-	v = [0,0,0]
+	v = [0] * dataset.classes
 	for instance in dataset.training:
 		v[int(instance[0])] +=1
 	print v, " - Treinamento (Classes)"
-	v = [0,0,0]
+	v = [0] * dataset.classes
 	for instance in dataset.testing:
 		v[int(instance[0])] +=1
 	print v, " - Teste (Classes)"
 	print '\n'
 	print '=== TRAINING INFO ===\n'
 	while(True):
+		print round((float(neural.Count)/float(maxIter))*100.0,2), ' %'
 		for instance in dataset.training:
 			neural.SetInput(instance[1:])
 			neural.ForwardStep()
 			neural.AvgError += neural.QuadError(expected = int(instance[0]))
 			neural.BackwardStep(errors = neural.AbsError(expected = int(instance[0])))
-
 		neural.AvgError /= len(dataset.training)
-		
+		neural.Count += 1
+
 		#print "|", neural.AvgError, " - ", neural.PrevAvgError, "| = ", abs(neural.AvgError-neural.PrevAvgError)
 		#if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
 		#	break;
 
-		if neural.AvgError < neural.threshold:
+		if neural.AvgError < neural.threshold and maxIter < neural.Count:
 			break;
 
 		neural.PrevAvgError = neural.AvgError
@@ -248,10 +250,10 @@ def main():
 	print '=== STATISTICS ===\n'
 	neural.PrintNetwork()
 
-	print '\n Adicionando o input [0,0,0,0]\n'
-	neural.SetInput([0,0,0,0])
-	neural.ForwardStep()
-	neural.PrintNetwork()
+	# print '\n Adicionando o input [0,0,0,0]\n'
+	# neural.SetInput([0,0,0,0])
+	# neural.ForwardStep()
+	# neural.PrintNetwork()
 
 
 main()
