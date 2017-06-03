@@ -4,7 +4,6 @@
 import numpy as np
 import cv2
 import char
-from matplotlib import pyplot as plt
 
 
 #cria um fragmento de imagem binária a partir de outra e delimitada pelos dados contornos.
@@ -91,7 +90,7 @@ def extractLine(img):
 	chars.sort(key=lambda x:x[1]+x[2])
 	
 	#obtém a largura esperada dos espaços a partir da média da largura dos caracteres
-	spaceWidth = sum([x[2]-x[1] for x in chars])*0.3/len(chars)
+	spaceWidth = sum([x[2]-x[1] for x in chars])*0.25/len(chars)
 	
 	#e começa o reconhecimento de cada caractere!
 	s = ""
@@ -106,7 +105,7 @@ def extractLine(img):
 		if not rec: rec = "_"
 		
 		#concatena com os outros caracteres já reconhecidos, considerando os espaços
-		if n > 0 and xMin-prevMax > spaceWidth:
+		if n > 0 and xMin-prevMax >= spaceWidth:
 			s += " "
 		s += rec
 		prevMax = xMax
@@ -169,10 +168,9 @@ def extractText(img):
 		
 		#cata fragmento de imagem da linha
 		lineImg = createImg(img,contourList,xMin,xMax,yMin,yMax)
+		cv2.imwrite("out/line%d.png" % n,lineImg)
 		
 		#passa o reconhecimento da linha pra outra função
-		char.lineIndex = n
-		char.charIndex = 0
 		rec = extractLine(lineImg)
 		
 		#concatena com as outras linhas já reconhecidas, pulando linha
