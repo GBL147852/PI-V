@@ -40,7 +40,7 @@ class NeuralNetwork(object):
 	LearningRate = 0.1
 	Count = 0
 	#threshold = 0.0001
-	threshold = 0.17
+	threshold = 0.15
 
 	
 	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons):
@@ -211,7 +211,6 @@ class Dataset(object):
 def main():
 	dataset = Dataset(path = "iris", classes = 3)
 	neural = NeuralNetwork(inputNumber = dataset.inputs, classes = 3, hiddenLayers = 2, hiddenNeurons = 9)
-	maxIter = 200
 	print '=== DATASET INFO ===\n'
 	v = [0] * dataset.classes
 	for instance in dataset.training:
@@ -224,7 +223,7 @@ def main():
 	print '\n'
 	print '=== TRAINING INFO ===\n'
 	while(True):
-		print round((float(neural.Count)/float(maxIter))*100.0,2), ' %'
+		# print round((float(neural.Count)/float(maxIter))*100.0,2), '% treinados'
 		for instance in dataset.training:
 			neural.SetInput(instance[1:])
 			neural.ForwardStep()
@@ -237,7 +236,6 @@ def main():
 		#if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
 		#	break;
 
-		if neural.AvgError < neural.threshold and maxIter < neural.Count:
 			break;
 
 		neural.PrevAvgError = neural.AvgError
