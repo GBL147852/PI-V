@@ -18,7 +18,7 @@ class NeuronLayer(object):
 		for i in range(neurons):
 			self.neurons.append(Neuron())
 		self.numberOfNeurons = neurons
-		self.neurons[0].value = 1
+		self.neurons[0].value = 0
 
 	def SetNeuronValue(self, indice, value):
 		self.neurons[indice].value = value
@@ -37,9 +37,10 @@ class Connection(object):
 class NeuralNetwork(object):
 	AvgError = 0
 	PrevAvgError = 0
-	LearningRate = 0.01
-	Count = 1
-	threshold = 0.01
+	LearningRate = 0.1
+	Count = 0
+	#threshold = 0.0001
+	threshold = 0.15
 
 	
 	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons):
@@ -47,7 +48,6 @@ class NeuralNetwork(object):
 		self.connections = [0] * (len(self.layers)-1)
 		
 		self.layers[0] = NeuronLayer(neurons = (inputNumber + 1))
-		self.layers[0].neurons[0].value = 1
 
 		self.layers[hiddenLayers+1] = NeuronLayer(neurons = classes)
 		self.outputLayer = hiddenLayers+1
@@ -76,6 +76,7 @@ class NeuralNetwork(object):
 		errors = [0] * self.classes
 		v = [0] * self.classes
 		v[expected] = 1
+		#print self.checkResults()
 		for n in range(self.classes):
 			errors[n] = (v[n] - self.layers[self.outputLayer].neurons[n].value)
 		return errors
@@ -133,6 +134,9 @@ class NeuralNetwork(object):
 				jLayer.neurons[j].gradient = self.OutputGradient(error = errors[j], neuronValue = jLayer.neurons[j].value)
 				connection.weights[i][j] += (self.LearningRate * jLayer.neurons[j].gradient * iLayer.neurons[i].value)
 
+
+		#print connection.weights[2][2]
+
 		for l in range(len(self.layers)-2, 1, -1):
 			iLayer = self.layers[(l-1)]
 			jLayer = self.layers[l]
@@ -143,7 +147,7 @@ class NeuralNetwork(object):
 					connection.weights[i][j] += (self.LearningRate * jLayer.neurons[j+1].gradient * iLayer.neurons[i].value)
 
 	def checkResults(self):
-		greaterResult = -1
+		greaterResult = -2
 		greaterIndex = -1
 
 		for i in range(len(self.layers[self.outputLayer].neurons)):
@@ -206,28 +210,34 @@ class Dataset(object):
 
 def main():
 	dataset = Dataset(path = "iris", classes = 3)
+	neural = NeuralNetwork(inputNumber = dataset.inputs, classes = 3, hiddenLayers = 2, hiddenNeurons = 9)
+	# maxIter = 200
 	print '=== DATASET INFO ===\n'
-	v = [0,0,0]
+	v = [0] * dataset.classes
 	for instance in dataset.training:
 		v[int(instance[0])] +=1
 	print v, " - Treinamento (Classes)"
-	v = [0,0,0]
+	v = [0] * dataset.classes
 	for instance in dataset.testing:
 		v[int(instance[0])] +=1
 	print v, " - Teste (Classes)"
 	print '\n'
 	print '=== TRAINING INFO ===\n'
 	while(True):
-		for instance in dataset.data:
+		# print round((float(neural.Count)/float(maxIter))*100.0,2), '% treinados'
+		for instance in dataset.training:
 			neural.SetInput(instance[1:])
 			neural.ForwardStep()
 			neural.AvgError += neural.QuadError(expected = int(instance[0]))
 			neural.BackwardStep(errors = neural.AbsError(expected = int(instance[0])))
+		neural.AvgError /= len(dataset.training)
+		neural.Count += 1
 
-		neural.AvgError /= dataset.instances
-		
-		print "|", neural.AvgError, " - ", neural.PrevAvgError, "| = ", abs(neural.AvgError-neural.PrevAvgError)
-		if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
+		#print "|", neural.AvgError, " - ", neural.PrevAvgError, "| = ", abs(neural.AvgError-neural.PrevAvgError)
+		#if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
+		#	break;
+
+		if neural.AvgError < neural.threshold:
 			break;
 
 		neural.PrevAvgError = neural.AvgError
@@ -240,10 +250,10 @@ def main():
 	print '=== STATISTICS ===\n'
 	neural.PrintNetwork()
 
-	print '\n Adicionando o input [0,0,0,0]\n'
-	neural.SetInput([0,0,0,0])
-	neural.ForwardStep()
-	neural.PrintNetwork()
+	# print '\n Adicionando o input [0,0,0,0]\n'
+	# neural.SetInput([0,0,0,0])
+	# neural.ForwardStep()
+	# neural.PrintNetwork()
 
 
 main()
