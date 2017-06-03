@@ -35,15 +35,15 @@ class Connection(object):
 
 
 class NeuralNetwork(object):
-	AvgError = 0
-	PrevAvgError = 0
-	LearningRate = 0.1
-	Count = 0
-	#threshold = 0.0001
-	threshold = 0.15
-
+	avgError = 0
+	prevAvgError = 0
+	count = 0
 	
-	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons):
+	
+	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons, learningRate = 0.1, threshold = 0.15):
+		self.learningRate = learningRate
+		self.threshold = threshold
+		
 		self.layers = [0] * (hiddenLayers + 2)
 		self.connections = [0] * (len(self.layers)-1)
 		
@@ -132,7 +132,7 @@ class NeuralNetwork(object):
 		for i in range(connection.i):
 			for j in range(connection.j):
 				jLayer.neurons[j].gradient = self.OutputGradient(error = errors[j], neuronValue = jLayer.neurons[j].value)
-				connection.weights[i][j] += (self.LearningRate * jLayer.neurons[j].gradient * iLayer.neurons[i].value)
+				connection.weights[i][j] += (self.learningRate * jLayer.neurons[j].gradient * iLayer.neurons[i].value)
 
 
 		#print connection.weights[2][2]
@@ -144,7 +144,7 @@ class NeuralNetwork(object):
 			for i in range(connection.i):
 				for j in range(connection.j):
 					jLayer.neurons[j+1].gradient = self.HiddenGradient(neuronValue = jLayer.neurons[j+1].value, neuronIndex = j, layerIndex = l-1)
-					connection.weights[i][j] += (self.LearningRate * jLayer.neurons[j+1].gradient * iLayer.neurons[i].value)
+					connection.weights[i][j] += (self.learningRate * jLayer.neurons[j+1].gradient * iLayer.neurons[i].value)
 
 	def checkResults(self):
 		greaterResult = -2
@@ -185,10 +185,17 @@ class NeuralNetwork(object):
 		return (error * self.DerivativeSigmoid(value = neuronValue))
 
 class Dataset(object):
-	def __init__(self, path, classes):
+	def __init__(self, inputs = 0, classes = 0):
+		self.data = []
+		self.training = []
+		self.testing = []
+		self.inputs = inputs
+		self.classes = classes
+	
+	def loadCsv(self, name, inputs = 0, classes = 0):
 		data = []
 		dir = os.path.dirname(__file__)
-		filename = os.path.join(dir, '../data/'+path+'.csv')
+		filename = os.path.join(dir, '../data/'+name+'.csv')
 
 		with open(filename) as csvfile:
 			r = csv.reader(csvfile)
@@ -199,13 +206,12 @@ class Dataset(object):
 				else:
 					data.append(list(map(float,row)))
 
-		random.shuffle(data)
 		self.data = data
-		self.training = data[:(len(data)*9/10)]
-		self.testing = data[(len(data)*9/10):]
-		self.instances = len(data)
-		self.inputs = len(data[0])-1
-		self.classes = classes
-		self.classIndex = 0
-
-
+		self.inputs = inputs if inputs > 0 else len(data[0])-1
+		self.classes = classes if classes > 0 else self.classes
+	
+	def setTrainingAndTesting(self):
+		random.shuffle(self.data)
+		trainLen = len(self.data)*9/10
+		self.training = self.data[:trainLen]
+		self.testing = self.data[trainLen:]
