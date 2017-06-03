@@ -211,6 +211,7 @@ class Dataset(object):
 def main():
 	dataset = Dataset(path = "iris", classes = 3)
 	neural = NeuralNetwork(inputNumber = dataset.inputs, classes = 3, hiddenLayers = 2, hiddenNeurons = 9)
+	# maxIter = 200
 	print '=== DATASET INFO ===\n'
 	v = [0] * dataset.classes
 	for instance in dataset.training:
@@ -236,6 +237,7 @@ def main():
 		#if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
 		#	break;
 
+		if neural.AvgError < neural.threshold:
 			break;
 
 		neural.PrevAvgError = neural.AvgError
