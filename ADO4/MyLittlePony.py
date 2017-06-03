@@ -26,7 +26,7 @@ class NeuronLayer(object):
 
 class Connection(object):
 	def __init__(self, iLayer, jLayer):
-		self.weights = [[random.uniform(0,1) for j in range(jLayer)] for i in range(iLayer)]
+		self.weights = [[random.uniform(-1,1) for j in range(jLayer)] for i in range(iLayer)]
 		self.i = iLayer
 		self.j = jLayer
 
@@ -93,8 +93,8 @@ class NeuralNetwork(object):
 	def PrintNetwork(self):
 		for layer in self.layers:
 			for neuron in layer.neurons:
-				print neuron.value
-			print "\n"
+				print round(neuron.value,4), '\t',
+			print ''
 		print '\n'
 
 
@@ -141,11 +141,6 @@ class NeuralNetwork(object):
 				for j in range(connection.j):
 					jLayer.neurons[j+1].gradient = self.HiddenGradient(neuronValue = jLayer.neurons[j+1].value, neuronIndex = j, layerIndex = l-1)
 					connection.weights[i][j] += (self.LearningRate * jLayer.neurons[j+1].gradient * iLayer.neurons[i].value)
-			
-	def allToZero(self):
-		for layer in self.layers:
-			for neuron in layer.neurons:
-				neuron.value = 0
 
 	def checkResults(self):
 		greaterResult = -1
@@ -163,7 +158,6 @@ class NeuralNetwork(object):
 		for entrance in inputs:
 			attributes = entrance[1:]
 			expected = int(entrance[0])
-			self.allToZero()
 			self.SetInput(attributes)
 			self.ForwardStep()
 			# self.PrintNetwork()
@@ -212,7 +206,17 @@ class Dataset(object):
 
 def main():
 	dataset = Dataset(path = "iris", classes = 3)
-	neural = NeuralNetwork(inputNumber = dataset.inputs, classes = 3, hiddenLayers = 2, hiddenNeurons = 3)
+	print '=== DATASET INFO ===\n'
+	v = [0,0,0]
+	for instance in dataset.training:
+		v[int(instance[0])] +=1
+	print v, " - Treinamento (Classes)"
+	v = [0,0,0]
+	for instance in dataset.testing:
+		v[int(instance[0])] +=1
+	print v, " - Teste (Classes)"
+	print '\n'
+	print '=== TRAINING INFO ===\n'
 	while(True):
 		for instance in dataset.data:
 			neural.SetInput(instance[1:])
@@ -223,12 +227,23 @@ def main():
 		neural.AvgError /= dataset.instances
 		
 		print "|", neural.AvgError, " - ", neural.PrevAvgError, "| = ", abs(neural.AvgError-neural.PrevAvgError)
-		if abs(neural.AvgError) < 0.3:
+		if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
 			break;
 
 		neural.PrevAvgError = neural.AvgError
 		neural.AvgError = 0
-
+	print '\n'
+	print '=== TESTING INFO ===\n'
 	print neural.TestingSet(inputs = dataset.testing)
+
+	print '\n'
+	print '=== STATISTICS ===\n'
+	neural.PrintNetwork()
+
+	print '\n Adicionando o input [0,0,0,0]\n'
+	neural.SetInput([0,0,0,0])
+	neural.ForwardStep()
+	neural.PrintNetwork()
+
 
 main()
