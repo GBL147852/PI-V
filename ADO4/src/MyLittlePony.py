@@ -33,7 +33,7 @@ class NeuralNetwork(object):
 	prevAvgError = 0
 	count = 0
 	
-	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons, learningRate = 0.1, threshold = 0.17):
+	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons, learningRate = 0.1, threshold = 0.14):
 		self.learningRate = learningRate
 		self.threshold = threshold
 		
@@ -149,20 +149,20 @@ class NeuralNetwork(object):
 				greaterResult = self.layers[self.outputLayer].neurons[i].value
 		return (greaterIndex,greaterResult)
 
-	def TestingSet(self, inputs = [[]]):
-		countRight = 0
-		for entrance in inputs:
-			attributes = entrance[1:]
-			expected = int(entrance[0])
-			self.SetInput(attributes)
-			self.ForwardStep()
-			# self.PrintNetwork()
-			print self.checkResults(), " - ", expected
-			if(self.checkResults()[0] == expected):
-				countRight += 1
-			# raw_input()
-		print countRight, " out of ", len(inputs)
-		return float(countRight)/float(len(inputs)) * 100
+	# def TestingSet(self, inputs = [[]]):
+	# 	countRight = 0
+	# 	for entrance in inputs:
+	# 		attributes = entrance[1:]
+	# 		expected = int(entrance[0])
+	# 		self.SetInput(attributes)
+	# 		self.ForwardStep()
+	# 		# self.PrintNetwork()
+	# 		print self.checkResults(), " - ", expected
+	# 		if(self.checkResults()[0] == expected):
+	# 			countRight += 1
+	# 		# raw_input()
+	# 	print countRight, " out of ", len(inputs)
+	# 	return float(countRight)/float(len(inputs)) * 100
 
 
 	def HiddenGradient(self, neuronValue, neuronIndex, layerIndex):

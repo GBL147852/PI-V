@@ -77,13 +77,13 @@ else:
 	print 'CSV de treinamento carregado!'
     		
 
-print '\n'
-print '=== TESTING INFO ===\n'
-print neural.TestingSet(inputs = dataset.testing)
+# print '\n'
+# print '=== TESTING INFO ===\n'
+# print neural.TestingSet(inputs = dataset.testing)
 
-print '\n'
-print '=== STATISTICS ===\n'
-neural.PrintNetwork()
+# print '\n'
+# print '=== STATISTICS ===\n'
+# neural.PrintNetwork()
 
 # print '\n Adicionando o input [0,0,0,0]\n'
 # neural.SetInput([0,0,0,0])
