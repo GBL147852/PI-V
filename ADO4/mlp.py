@@ -6,13 +6,15 @@ import random
 import csv
 import os
 import src.MyLittlePony as mlp
+import time
+import datetime
 
 
 
 dataset = mlp.Dataset()
-dataset.loadCsv(name = 'iris', classes = 3)
+dataset.loadCsv(name = 'times', classes = 97)
 dataset.setTrainingAndTesting()
-neural = mlp.NeuralNetwork(inputNumber = dataset.inputs, classes = dataset.classes, hiddenLayers = 2, hiddenNeurons = 9)
+neural = mlp.NeuralNetwork(inputNumber = dataset.inputs, classes = dataset.classes, hiddenLayers = 2, hiddenNeurons = int(math.ceil(math.sqrt(dataset.inputs*dataset.classes))))
 
 if os.path.isfile(dataset.path+'training.csv'):
 	haveTrainingFile = True
@@ -45,11 +47,13 @@ if not haveTrainingFile:
 		neural.avgError /= len(dataset.training)
 		neural.count += 1
 
-		# print neural.avgError
+		ts = time.time()
+		st = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S')
+		print '[', st, ']', neural.avgError
 		#if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
 		#	break;
 
-		if neural.avgError < neural.threshold:
+		if neural.avgError < neural.threshold or neural.count > 10:
 			break;
 
 		# neural.prevAvgError = neural.avgError

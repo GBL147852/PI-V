@@ -183,9 +183,10 @@ class NeuralNetwork(object):
 			i = 0
 			for row in r:
 				if len(row) < 3:
-					print row[0], "-", row[1]
+					
 					connection +=1
 					i = 0
+					print 'Conexao da camada ', connection , ' para a camada ', connection+1, ' carregada!'
 				else:
 					self.connections[connection].weights[i] = list(map(float,row))
 					i += 1
