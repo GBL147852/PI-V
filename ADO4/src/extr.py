@@ -168,7 +168,6 @@ def extractText(img):
 		
 		#cata fragmento de imagem da linha
 		lineImg = createImg(img,contourList,xMin,xMax,yMin,yMax)
-		cv2.imwrite("out/line%d.png" % n,lineImg)
 		
 		#passa o reconhecimento da linha pra outra função
 		rec = extractLine(lineImg)

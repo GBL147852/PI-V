@@ -24,6 +24,7 @@ def loadData(name):
 	dir = os.path.dirname(__file__)
 	classes = os.path.join(dir, "../data/"+name+"/classes.csv")
 	options = os.path.join(dir, "../data/"+name+"/options.csv")
+	training = os.path.join(dir, "../data/"+name+"/training.csv")
 	
 	characters = []
 	with open(classes) as csvfile:
@@ -39,10 +40,8 @@ def loadData(name):
 			if n == 0: width = int(row[1])
 			if n == 1: height = int(row[1])
 	
-	#etc
-	
-	nn = mlp.NeuralNetwork(inputNumber=width*height,classes=len(characters),hiddenLayers=1,hiddenNeurons=int(math.sqrt(width*height*len(characters))))
-
+	nn = mlp.NeuralNetwork(inputNumber=width*height,classes=len(characters),hiddenLayers=2,hiddenNeurons=int(math.ceil(math.sqrt(width*height*len(characters)))))
+	nn.loadTraining(training)
 
 #transforma uma imagem em parâmetros de entrada da rede neural.
 def getMlpInput(img):
