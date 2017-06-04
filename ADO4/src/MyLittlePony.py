@@ -33,7 +33,7 @@ class NeuralNetwork(object):
 	prevAvgError = 0
 	count = 0
 	
-	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons, learningRate = 0.1, threshold = 0.14):
+	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons, learningRate = 0.1, threshold = 0.05):
 		self.learningRate = learningRate
 		self.threshold = threshold
 		
