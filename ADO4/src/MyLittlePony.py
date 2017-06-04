@@ -194,7 +194,7 @@ class NeuralNetwork(object):
 	def saveTraining(self, trainingPath):
 		with open(trainingPath,"wb") as csvfile:
 			writer = csv.writer(csvfile,quoting=csv.QUOTE_MINIMAL)
-			for connection in neural.connections:
+			for connection in self.connections:
 				writer.writerow([connection.i,connection.j])
 				writer.writerows(connection.weights)
 		print 'CSV de treinamento construido!'
