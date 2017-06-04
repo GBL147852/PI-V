@@ -20,9 +20,6 @@ class NeuronLayer(object):
 		self.numberOfNeurons = neurons
 		self.neurons[0].value = 0
 
-	def SetNeuronValue(self, indice, value):
-		self.neurons[indice].value = value
-
 
 class Connection(object):
 	def __init__(self, iLayer, jLayer):
@@ -30,15 +27,11 @@ class Connection(object):
 		self.i = iLayer
 		self.j = jLayer
 
-	def getWeight(self, i, j):
-		return self.weights[i][j]
-
 
 class NeuralNetwork(object):
 	avgError = 0
 	prevAvgError = 0
 	count = 0
-	
 	
 	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons, learningRate = 0.1, threshold = 0.15):
 		self.learningRate = learningRate
@@ -70,7 +63,6 @@ class NeuralNetwork(object):
 	def SetInput(self, inputs = []):
 		for i in range(len(inputs)):
 			self.layers[0].neurons[(i+1)].value = inputs[i]
-
 
 	def AbsError(self, expected):
 		errors = [0] * self.classes
@@ -184,6 +176,20 @@ class NeuralNetwork(object):
 	def OutputGradient(self, error, neuronValue):
 		return (error * self.DerivativeSigmoid(value = neuronValue))
 
+	def loadTraining(self, trainingPath):
+		with open(trainingPath) as csvfile:
+			r = csv.reader(csvfile)
+			connection = -1
+			i = 0
+			for row in r:
+				if len(row) < 3:
+					print row[0], "-", row[1]
+					connection +=1
+					i = 0
+				else:
+					self.connections[connection].weights[i] = list(map(float,row))
+					i += 1
+
 class Dataset(object):
 	def __init__(self, inputs = 0, classes = 0):
 		self.data = []
@@ -195,7 +201,7 @@ class Dataset(object):
 	def loadCsv(self, name, inputs = 0, classes = 0):
 		data = []
 		dir = os.path.dirname(__file__)
-		filename = os.path.join(dir, '../data/'+name+'.csv')
+		filename = os.path.join(dir, '../data/'+name+'/data.csv')
 
 		with open(filename) as csvfile:
 			r = csv.reader(csvfile)
@@ -209,6 +215,8 @@ class Dataset(object):
 		self.data = data
 		self.inputs = inputs if inputs > 0 else len(data[0])-1
 		self.classes = classes if classes > 0 else self.classes
+		self.name = name
+		self.path = 'data/'+name+'/'
 	
 	def setTrainingAndTesting(self):
 		random.shuffle(self.data)

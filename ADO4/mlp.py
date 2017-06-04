@@ -13,6 +13,15 @@ dataset = mlp.Dataset()
 dataset.loadCsv(name = 'iris', classes = 3)
 dataset.setTrainingAndTesting()
 neural = mlp.NeuralNetwork(inputNumber = dataset.inputs, classes = dataset.classes, hiddenLayers = 2, hiddenNeurons = 9)
+
+if os.path.isfile(dataset.path+'training.csv'):
+	haveTrainingFile = True
+	print "Ja existe um treinamento para este dataset. Quer treinar novamente? y/n"
+	if raw_input() == 'y':
+		haveTrainingFile = False
+else:
+	haveTrainingFile = False
+
 # maxIter = 200
 print '=== DATASET INFO ===\n'
 v = [0] * dataset.classes
@@ -24,26 +33,41 @@ for instance in dataset.testing:
 	v[int(instance[0])] +=1
 print v, " - Teste (Classes)"
 print '\n'
-print '=== TRAINING INFO ===\n'
-while(True):
-	# print round((float(neural.Count)/float(maxIter))*100.0,2), '% treinados'
-	for instance in dataset.training:
-		neural.SetInput(instance[1:])
-		neural.ForwardStep()
-		neural.avgError += neural.QuadError(expected = int(instance[0]))
-		neural.BackwardStep(errors = neural.AbsError(expected = int(instance[0])))
-	neural.avgError /= len(dataset.training)
-	neural.count += 1
+if not haveTrainingFile:
+	print '=== TRAINING INFO ===\n'
+	while(True):
+		# print round((float(neural.Count)/float(maxIter))*100.0,2), '% treinados'
+		for instance in dataset.training:
+			neural.SetInput(instance[1:])
+			neural.ForwardStep()
+			neural.avgError += neural.QuadError(expected = int(instance[0]))
+			neural.BackwardStep(errors = neural.AbsError(expected = int(instance[0])))
+		neural.avgError /= len(dataset.training)
+		neural.count += 1
 
-	#print "|", neural.AvgError, " - ", neural.PrevAvgError, "| = ", abs(neural.AvgError-neural.PrevAvgError)
-	#if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
-	#	break;
+		# print neural.avgError
+		#if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
+		#	break;
 
-	if neural.avgError < neural.threshold:
-		break;
+		if neural.avgError < neural.threshold:
+			break;
 
-	neural.prevAvgError = neural.avgError
-	neural.avgError = 0
+		# neural.prevAvgError = neural.avgError
+		neural.avgError = 0
+
+	print 'Treinado! Construindo CSV...'
+
+	with open("data/"+dataset.name+"/training.csv","wb") as csvfile:
+		writer = csv.writer(csvfile,quoting=csv.QUOTE_MINIMAL)
+		for connection in neural.connections:
+			writer.writerow([connection.i,connection.j])
+			writer.writerows(connection.weights)
+	print 'CSV de treinamento construido!'
+else:
+	neural.loadTraining(trainingPath = dataset.path+'training.csv')
+	print 'CSV de treinamento carregado!'
+    		
+
 print '\n'
 print '=== TESTING INFO ===\n'
 print neural.TestingSet(inputs = dataset.testing)
