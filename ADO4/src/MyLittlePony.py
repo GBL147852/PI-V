@@ -158,7 +158,7 @@ class NeuralNetwork(object):
 			self.ForwardStep()
 			# self.PrintNetwork()
 			print self.checkResults(), " - ", expected
-			if(self.checkResults() == expected):
+			if(self.checkResults()[0] == expected):
 				countRight += 1
 			# raw_input()
 		print countRight, " out of ", len(inputs)
