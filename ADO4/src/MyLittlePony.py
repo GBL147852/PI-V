@@ -147,15 +147,15 @@ class NeuralNetwork(object):
 					connection.weights[i][j] += (self.learningRate * jLayer.neurons[j+1].gradient * iLayer.neurons[i].value)
 
 	def checkResults(self):
-		greaterResult = -2
+		greaterResult = 0
 		greaterIndex = -1
 
 		for i in range(len(self.layers[self.outputLayer].neurons)):
 			# print "Checagem: ", i, " - ", self.layers[self.outputLayer].neurons[i].value
-			if self.layers[self.outputLayer].neurons[i].value > greaterResult:
+			if self.layers[self.outputLayer].neurons[i].value >= greaterResult:
 				greaterIndex = i
 				greaterResult = self.layers[self.outputLayer].neurons[i].value
-		return greaterIndex
+		return (greaterIndex,greaterResult)
 
 	def TestingSet(self, inputs = [[]]):
 		countRight = 0

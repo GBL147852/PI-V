@@ -10,7 +10,7 @@ import math
 
 
 #início
-print("\noi! esse é o pré-processador de datasets de caracteres.")
+print("\n[pré-processador de datasets de caracteres]\n")
 s = raw_input("~ digite o nome da pasta do dataset: ")
 char.width = int(raw_input("~ largura desejada do caractere: "))
 char.height = int(raw_input("~ altura desejada do caractere: "))
@@ -34,3 +34,5 @@ with open("data/"+s+"/options.csv","wb") as csvfile:
 	writer.writerow(["Character width",str(char.width)])
 	writer.writerow(["Character height",str(char.height)])
 	writer.writerow(["Classes",str(len(classes))])
+
+print("~ dataset gerado!")

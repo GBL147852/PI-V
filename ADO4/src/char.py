@@ -3,10 +3,45 @@
 
 import numpy as np
 import cv2
-#import MyLittlePony as mlp
+import MyLittlePony as mlp
+import csv
+import math
+import os
 
 width = 12
 height = 12
+characters = []
+nn = None
+
+
+#carrega dados do conjunto de caracteres a ser utilizado.
+def loadData(name):
+	global width
+	global height
+	global characters
+	global nn
+	
+	dir = os.path.dirname(__file__)
+	classes = os.path.join(dir, "../data/"+name+"/classes.csv")
+	options = os.path.join(dir, "../data/"+name+"/options.csv")
+	
+	characters = []
+	with open(classes) as csvfile:
+		r = csv.reader(csvfile)
+		firstRow = True
+		for row in r:
+			if firstRow: firstRow = False
+			else: characters.append(str(row[1]))
+	
+	with open(options) as csvfile:
+		r = csv.reader(csvfile)
+		for (n,row) in enumerate(r):
+			if n == 0: width = int(row[1])
+			if n == 1: height = int(row[1])
+	
+	#etc
+	
+	nn = mlp.NeuralNetwork(inputNumber=width*height,classes=len(characters),hiddenLayers=1,hiddenNeurons=int(math.sqrt(width*height*len(characters))))
 
 
 #transforma uma imagem em parâmetros de entrada da rede neural.
@@ -76,7 +111,10 @@ def getMlpInput(img):
 def recogniseChar(img):
 	#coloca a imagem no mlp
 	mlpInput = getMlpInput(img)
-	#falta colocar de fato pff
+	nn.SetInput(mlpInput)
+	nn.ForwardStep()
 	
-	#temp: valor padrão
-	return "A"
+	#obtém o resultado. se for válido, o retorna
+	index,value = nn.checkResults()
+	if index >= 0 and index < len(characters): return characters[index]
+	return ""

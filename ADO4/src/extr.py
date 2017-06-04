@@ -90,7 +90,7 @@ def extractLine(img):
 	chars.sort(key=lambda x:x[1]+x[2])
 	
 	#obtém a largura esperada dos espaços a partir da média da largura dos caracteres
-	spaceWidth = sum([x[2]-x[1] for x in chars])*0.25/len(chars)
+	spaceWidth = sum([x[2]-x[1] for x in chars])*0.3/len(chars)
 	
 	#e começa o reconhecimento de cada caractere!
 	s = ""

@@ -4,6 +4,13 @@
 import numpy as np
 import cv2
 import src.extr as extr
+import src.char as char
+
+
+#início
+print("\n[reconhecedor de blocos de texto]\n")
+s = raw_input("~ nome da pasta do dataset com dados de treinamento: ")
+char.loadData(s)
 
 
 #loop principal
