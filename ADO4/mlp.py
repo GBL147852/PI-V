@@ -18,9 +18,12 @@ neural = mlp.NeuralNetwork(inputNumber = dataset.inputs, classes = dataset.class
 
 if os.path.isfile(dataset.path+'training.csv'):
 	haveTrainingFile = True
+	print "[treinamento do dataset] \n"
 	print "Ja existe um treinamento para este dataset. Quer treinar novamente? y/n"
 	if raw_input() == 'y':
-		haveTrainingFile = False
+		wantToTrainMore = True
+	else:
+		wantToTrainMore = False
 else:
 	haveTrainingFile = False
 
@@ -35,7 +38,12 @@ for instance in dataset.testing:
 	v[int(instance[0])] +=1
 print v, " - Teste (Classes)"
 print '\n'
-if not haveTrainingFile:
+if (not haveTrainingFile) or (wantToTrainMore and haveTrainingFile):
+	ts = time.time()
+	st = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S')
+	print '[', st, '] Treinamento Iniciado'
+	if (wantToTrainMore and haveTrainingFile):
+		neural.loadTraining(trainingPath = dataset.path+'training.csv')
 	print '=== TRAINING INFO ===\n'
 	while(True):
 		# print round((float(neural.Count)/float(maxIter))*100.0,2), '% treinados'
@@ -53,20 +61,17 @@ if not haveTrainingFile:
 		#if abs(neural.AvgError - neural.PrevAvgError) < neural.threshold:
 		#	break;
 
-		if neural.avgError < neural.threshold or neural.count > 10:
+		if neural.avgError < neural.threshold:
 			break;
 
 		# neural.prevAvgError = neural.avgError
 		neural.avgError = 0
+		neural.saveTraining(trainingPath = ("data/"+dataset.name+"/training.csv"))
+		ts = time.time()
+		st = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S')
+		print '[', st, '] CSV temporário construído!'
 
-	print 'Treinado! Construindo CSV...'
-
-	with open("data/"+dataset.name+"/training.csv","wb") as csvfile:
-		writer = csv.writer(csvfile,quoting=csv.QUOTE_MINIMAL)
-		for connection in neural.connections:
-			writer.writerow([connection.i,connection.j])
-			writer.writerows(connection.weights)
-	print 'CSV de treinamento construido!'
+	
 else:
 	neural.loadTraining(trainingPath = dataset.path+'training.csv')
 	print 'CSV de treinamento carregado!'

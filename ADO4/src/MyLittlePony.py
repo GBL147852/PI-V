@@ -33,7 +33,7 @@ class NeuralNetwork(object):
 	prevAvgError = 0
 	count = 0
 	
-	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons, learningRate = 0.1, threshold = 0.15):
+	def __init__(self, inputNumber, classes, hiddenLayers, hiddenNeurons, learningRate = 0.1, threshold = 0.17):
 		self.learningRate = learningRate
 		self.threshold = threshold
 		
@@ -191,6 +191,14 @@ class NeuralNetwork(object):
 					self.connections[connection].weights[i] = list(map(float,row))
 					i += 1
 
+	def saveTraining(self, trainingPath):
+		with open(trainingPath,"wb") as csvfile:
+			writer = csv.writer(csvfile,quoting=csv.QUOTE_MINIMAL)
+			for connection in neural.connections:
+				writer.writerow([connection.i,connection.j])
+				writer.writerows(connection.weights)
+		print 'CSV de treinamento construido!'
+
 class Dataset(object):
 	def __init__(self, inputs = 0, classes = 0):
 		self.data = []
@@ -221,6 +229,6 @@ class Dataset(object):
 	
 	def setTrainingAndTesting(self):
 		random.shuffle(self.data)
-		trainLen = len(self.data)*9/10
+		trainLen = len(self.data)*1
 		self.training = self.data[:trainLen]
 		self.testing = self.data[trainLen:]
