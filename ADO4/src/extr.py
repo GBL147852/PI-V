@@ -58,7 +58,7 @@ def extractLine(img):
 	chars = []
 	for (contour,xMin,xMax,yMin,yMax,x,y) in getContours(img):
 		
-		#verifica se algum caractere tá na mesma posição x. pior caso é O(n^2)...
+		#verifica se algum caractere tá na mesma posição x. pior caso é O(n!)...
 		contourList = [contour]
 		xList = [x]
 		found = []
@@ -131,7 +131,7 @@ def extractText(img):
 	lines = []
 	for (contour,xMin,xMax,yMin,yMax,x,y) in getContours(img2):
 		
-		#verifica se alguma linha tá na mesma posição y. pior caso é O(n^2)...
+		#verifica se alguma linha tá na mesma posição y. pior caso é O(n!)...
 		contourList = [contour]
 		yList = [y]
 		found = []

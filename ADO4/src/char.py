@@ -5,8 +5,8 @@ import numpy as np
 import cv2
 #import MyLittlePony as mlp
 
-width = 15
-height = 15
+width = 12
+height = 12
 
 
 #transforma uma imagem em parâmetros de entrada da rede neural.
@@ -25,31 +25,35 @@ def getMlpInput(img):
 		row = img[yMin]
 		for i in row:
 			if i == 0: break
-		else: continue
+		else:
+			yMin += 1
+			continue
 		break
-		yMin += 1
 	else: return [0 for i in width*height]
 	while yMin < yMax:
 		row = img[yMax-1]
 		for i in row:
 			if i == 0: break
-		else: continue
+		else:
+			yMax -= 1
+			continue
 		break
-		yMax -= 1
 	else: return [0 for i in width*height]
 	while xMin < xMax:
 		for i in xrange(yMin,yMax):
 			if img[i,xMin] == 0: break
-		else: continue
+		else:
+			xMin += 1
+			continue
 		break
-		xMin += 1
 	else: return [0 for i in width*height]
 	while xMin < xMax:
 		for i in xrange(yMin,yMax):
 			if img[i,xMax-1] == 0: break
-		else: continue
+		else:
+			xMax -= 1
+			continue
 		break
-		xMax -= 1
 	else: return [0 for i in width*height]
 	
 	#redimensiona a imagem pro tamanho desejado
